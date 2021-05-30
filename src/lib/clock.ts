@@ -55,17 +55,27 @@ class _Clock {
   }
 
   // Schedules `callback` to run after `delay` seconds.
-  public setTimeout(delay: number, callback: EventCallback) {
+  public setTimeout(delay: number, onEvent: EventCallback) {
     return this.queue.createEvent(
       this.context,
       toAbsoluteTime(delay, this.context.currentTime),
-      callback
+      onEvent
     )
   }
 
+  // Schedules `callback` to run after `delay` seconds and repeat indefinitely (until the event is manually cancelled or limited).
+  public setInterval(delay: number, onEvent: EventCallback) {
+    return this.setTimeout(delay, onEvent).repeat(delay)
+  }
+
   // Schedules `callback` to run before `deadline`.
-  public atTime(deadline: number, callback: EventCallback) {
-    return this.queue.createEvent(this.context, deadline, callback)
+  public atTime(deadline: number, onEvent: EventCallback) {
+    return this.queue.createEvent(this.context, deadline, onEvent)
+  }
+
+  // Schedules `callback` to run after `delay` seconds indefinitely (until the event is manually cancelled).
+  public every(interval: number, onEvent: EventCallback) {
+    return this.queue.createEvent(this.context, this.context.currentTime, onEvent).repeat(interval)
   }
 }
 

@@ -10,8 +10,8 @@ resumeContext(new AudioContext()).then((context) => {
   clock.start()
 
   clock
-    .atTime(0, (event) => {
-      console.log('played', event)
+    .every(0.1, (event) => {
+      console.log('interval', event.count)
     })
-    .repeat(1)
+    .limit(10)
 })
