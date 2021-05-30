@@ -30,16 +30,18 @@ class _Clock {
     this.context = options.context || defaultOptions.context
   }
 
+  // Get current time
+  public now() {
+    return this.context.currentTime
+  }
+
   // Removes all scheduled events and start
   public start() {
     if (this._started) return
+
     this._started = true
-
     this.queue.clear()
-
-    this.ticker.start(() => {
-      this.queue.run(this.context.currentTime)
-    })
+    this.ticker.start(() => this.queue.run(this.context.currentTime))
   }
 
   // Stops the clock
@@ -50,17 +52,9 @@ class _Clock {
     this.ticker.stop()
   }
 
-  public now() {
-    return this.context.currentTime
-  }
-
   // Schedules `callback` to run after `delay` seconds.
   public setTimeout(delay: number, onEvent: EventCallback) {
-    return this.queue.createEvent(
-      this.context,
-      toAbsoluteTime(delay, this.context.currentTime),
-      onEvent
-    )
+    return this.queue.createEvent(this.context, toAbsoluteTime(delay, this.now()), onEvent)
   }
 
   // Schedules `callback` to run after `delay` seconds and repeat indefinitely (until the event is manually cancelled or limited).
@@ -68,14 +62,14 @@ class _Clock {
     return this.setTimeout(delay, onEvent).repeat(delay)
   }
 
-  // Schedules `callback` to run before `deadline`.
-  public atTime(deadline: number, onEvent: EventCallback) {
-    return this.queue.createEvent(this.context, deadline, onEvent)
+  // Schedules `callback` to run before `time`.
+  public atTime(time: number, onEvent: EventCallback) {
+    return this.queue.createEvent(this.context, time, onEvent)
   }
 
-  // Schedules `callback` to run after `delay` seconds indefinitely (until the event is manually cancelled).
+  // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).
   public every(interval: number, onEvent: EventCallback) {
-    return this.queue.createEvent(this.context, this.context.currentTime, onEvent).repeat(interval)
+    return this.atTime(this.now(), onEvent).repeat(interval)
   }
 }
 

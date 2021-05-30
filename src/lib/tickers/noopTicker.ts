@@ -1,6 +1,5 @@
-import { Ticker } from '../types'
-
-const noop = () => {}
+import { noop } from '../utils/noop'
+import { Ticker } from '../../types'
 
 export const createNoopTicker = (): Ticker => {
   return {

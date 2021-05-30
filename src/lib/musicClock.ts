@@ -9,7 +9,6 @@ const defaultOptions: MusicClockOptions = {
 export type MusicClockOptions = {
   tempo: number
 }
-
 class _MusicClock {
   private tempo: number
 
@@ -17,19 +16,29 @@ class _MusicClock {
     this.tempo = options.tempo || defaultOptions.tempo
   }
 
-  public start = this.clock.start
-  public stop = this.clock.stop
-  public now = this.clock.now
-  public atTime = this.clock.atTime
-  public setTimeout = this.clock.setTimeout
-
-  public currentBeat() {
-    return secondsToBeats(this.clock.context.currentTime, this.tempo)
+  public toSeconds(beats: number) {
+    return beatsToSeconds(beats, this.tempo)
   }
+
+  public toBeats(seconds: number) {
+    return secondsToBeats(seconds, this.tempo)
+  }
+
+  public now() {
+    return this.toBeats(this.clock.now())
+  }
+
+  public start = this.clock.start.bind(this.clock)
+  public stop = this.clock.stop.bind(this.clock)
 
   // Schedules `callback` to run before `deadline` given in beats.
   public atBeat(deadline: number, callback: EventCallback) {
-    return this.clock.atTime(beatsToSeconds(deadline, this.tempo), callback)
+    return this.clock.atTime(this.toSeconds(deadline), callback)
+  }
+
+  // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).
+  public every(beatInterval: number, onEvent: EventCallback) {
+    return this.atBeat(beatInterval, onEvent).repeat(this.toSeconds(beatInterval))
   }
 
   public setTempo = (tempo: number) => {
