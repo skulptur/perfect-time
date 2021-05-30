@@ -1,18 +1,20 @@
 import { ClockEvent, EventCallback } from './clockEvent'
 import { beatsToSeconds, secondsToBeats } from 'audio-fns'
+import { Ticker } from '../types'
+import { createNoopTicker } from './noopTicker'
 
 const defaultOptions = {
-  tickMethod: 'ScriptProcessorNode',
   toleranceLate: 0.1,
   toleranceEarly: 0.001,
   tempo: 120,
+  ticker: createNoopTicker(),
 }
 
 export type ClockOptions = {
-  tickMethod: 'manual' | 'ScriptProcessorNode'
   toleranceEarly: number
   toleranceLate: number
   tempo: number
+  ticker: Ticker
 }
 
 export class Clock {
@@ -23,12 +25,11 @@ export class Clock {
 
   private tempo: number = NaN
 
-  public tickMethod: string
+  public ticker: Ticker
   public _started: boolean = false
-  public _clockNode: ScriptProcessorNode | null = null
 
   constructor(context: AudioContext, options: Partial<ClockOptions> = {}) {
-    this.tickMethod = options.tickMethod || defaultOptions.tickMethod
+    this.ticker = options.ticker || defaultOptions.ticker
     this.toleranceEarly = options.toleranceEarly || defaultOptions.toleranceEarly
     this.toleranceLate = options.toleranceLate || defaultOptions.toleranceLate
     this.tempo = options.tempo || defaultOptions.tempo
@@ -66,7 +67,7 @@ export class Clock {
     events: Array<ClockEvent> = this._events
   ) {
     if (ratio === 1) return
-    events.forEach(function(event) {
+    events.forEach((event) => {
       event.timeStretch(tRef, ratio)
     })
     return events
@@ -82,27 +83,14 @@ export class Clock {
     return this.tempo
   }
 
-  // Removes all scheduled events and starts the clock
+  // Removes all scheduled events and start
   public start() {
-    if (this._started === false) {
-      let self = this
-      this._started = true
-      this._events = []
+    if (this._started) return
+    let self = this
+    this._started = true
+    this._events = []
 
-      if (this.tickMethod === 'ScriptProcessorNode') {
-        let bufferSize = 256
-        // We have to keep a reference to the node to avoid garbage collection
-        this._clockNode = this.audioContext.createScriptProcessor(bufferSize, 1, 1)
-        this._clockNode.connect(this.audioContext.destination)
-        this._clockNode.onaudioprocess = function() {
-          process.nextTick(function() {
-            self._tick()
-          })
-        }
-      } else if (this.tickMethod === 'manual') null
-      // _tick is called manually
-      else throw new Error('invalid tickMethod ' + this.tickMethod)
-    }
+    this.ticker.start(self._tick.bind(this))
   }
 
   // Stops the clock
@@ -110,7 +98,8 @@ export class Clock {
     if (!this._started) return
 
     this._started = false
-    this._clockNode!.disconnect()
+
+    this.ticker.stop()
   }
 
   // ---------- Private ---------- //
@@ -119,8 +108,8 @@ export class Clock {
   // events for which `currentTime` is included in their tolerance interval.
   public _tick() {
     let event = this._events.shift()
-
-    while (event && event._earliestTime! <= this.audioContext.currentTime) {
+    const currentTime = this.audioContext.currentTime
+    while (event && event._earliestTime! <= currentTime) {
       event._execute()
       event = this._events.shift()
     }
