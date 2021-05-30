@@ -1,4 +1,4 @@
-import { EventCallback } from './clockEvent'
+import { ClockEvent, EventCallback } from './clockEvent'
 import { createQueue, Queue } from './queue'
 import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
@@ -50,6 +50,15 @@ class _Clock {
 
     this._started = false
     this.ticker.stop()
+  }
+
+  // alias with default for `timeReference`
+  public timeStretch(
+    ratio: number,
+    timeReference: number = this.context.currentTime,
+    events?: Array<ClockEvent>
+  ) {
+    return this.queue.timeStretch(ratio, timeReference, events)
   }
 
   // Schedules `callback` to run after `delay` seconds.
