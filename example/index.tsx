@@ -10,7 +10,7 @@ resumeContext(new AudioContext()).then((context) => {
   clock.start()
 
   clock
-    .every(0.1, (event) => {
+    .every(1, (event) => {
       console.log('interval', event.count)
     })
     .limit(10)
