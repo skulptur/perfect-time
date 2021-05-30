@@ -1,6 +1,6 @@
 ## `perfect-time`
 
-Single paragraph about why this library exists
+A clock to schedule time events with precision in Typescript.
 
 ## Get started
 

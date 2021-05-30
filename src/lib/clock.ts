@@ -130,8 +130,9 @@ export class Clock {
   }
 
   // Creates an event and insert it to the list
-  public _createEvent(func: EventCallback, deadline: number) {
-    return new ClockEvent(this, deadline, func)
+  public _createEvent(callback: EventCallback, deadline: number) {
+    console.log(this.audioContext.currentTime, deadline)
+    return new ClockEvent(this, deadline, callback)
   }
 
   // Inserts an event to the list

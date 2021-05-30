@@ -1810,10 +1810,10 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-audio-fns@^0.3.1:
-  version "0.3.1"
-  resolved "https://registry.yarnpkg.com/audio-fns/-/audio-fns-0.3.1.tgz#52b28431d2e0f19c4ffc2532dddf4b152fd0e3f7"
-  integrity sha512-4r1P2zhxMXfMnAlNPOEml3ygFTiDgEzhnNAQvRG4MKW/T53koI+3boBJMaAwIQiw2ztbQ1xu8LHHMSf/GUZobg==
+audio-fns@^0.3.2:
+  version "0.3.2"
+  resolved "https://registry.yarnpkg.com/audio-fns/-/audio-fns-0.3.2.tgz#358464c1159fd9ebab992249c3df2649c2d1aa5c"
+  integrity sha512-X0LEaEMmKwUfM6pWw2Koq6adPZEQj9lAs5CITuPx4Gpsha3DY9/5PCWyzVt2rBF4pjRZHiWAC9Bk+QgDFqg5dQ==
   dependencies:
     a-weighting "^1.1.0"
     fftjs "^0.0.4"

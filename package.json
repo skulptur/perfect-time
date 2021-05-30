@@ -61,6 +61,6 @@
     "typescript": "^4.2.4"
   },
   "dependencies": {
-    "audio-fns": "^0.3.1"
+    "audio-fns": "^0.3.2"
   }
 }
