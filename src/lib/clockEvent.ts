@@ -125,8 +125,9 @@ export class ClockEvent {
 
     // In the case `schedule` is called inside `onEvent`, we need to avoid
     // overwriting with yet another `schedule`.
-    if (!this.queue.isQueued(this) && this.isRepeated() && !this._cleared)
+    if (!this.queue.isQueued(this) && this.isRepeated() && !this._cleared) {
       this.schedule(this.time + this.interval!)
+    }
   }
 
   // Updates cached times
