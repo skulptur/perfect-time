@@ -1,6 +1,8 @@
 ## `perfect-time`
 
-A generic clock to schedule time events with precision in Typescript. Events have a configurable deadline tolerance zone in which they must be executed or otherwise get dropped. This means it executes the callbacks of scheduled events slightly before the deadline, allowing you to use the latest application state for example with the Web Audio API. Besides that, it also solves the issues with unreliable JS timers by the use of configurable tickers which can run on a separate thread.
+A generic clock to schedule time events with precision in Typescript.
+
+Events have a configurable tolerance zone in which they must be executed or otherwise get dropped. This allows you to use the latest application state, for example with the Web Audio API. It also solves the issues with unreliable JS timers by accepting user or library provided tickers which can run on a separate thread.
 
 ## Get started
 
@@ -74,12 +76,20 @@ clock.setTimeout(10, callback)
 clock.setInterval(10, callback)
 ```
 
-You can also control the event, for example to schedule repetition in the future
+**Control Events**
+
+You can also control the event directly, for example to schedule repetition in the future or limiting repeats.
 
 ```typescript
 // callback called right before context.currentTime reaches 10, and then every second 3 times
 // clock.atTime returns an event, which we call .repeat on
 clock.atTime(10, callback).repeat(1, 3)
+
+// equivalent to the above
+clock
+  .atTime(10, callback)
+  .repeat(1)
+  .limit(3)
 ```
 
 **Cancel Events**
