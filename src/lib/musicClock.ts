@@ -11,7 +11,7 @@ export type MusicClockOptions = {
 }
 
 class _MusicClock {
-  public tempo: number
+  private tempo: number
 
   constructor(private clock: Clock, options: Partial<MusicClockOptions> = {}) {
     this.tempo = options.tempo || defaultOptions.tempo
