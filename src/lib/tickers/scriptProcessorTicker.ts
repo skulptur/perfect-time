@@ -1,4 +1,4 @@
-import { Ticker } from '../types'
+import { Ticker } from '../../types'
 
 // ScriptProcessorNode is deprecated but still widely available. Avoid using, included for completeness.
 export const createScriptProcessorTicker = (

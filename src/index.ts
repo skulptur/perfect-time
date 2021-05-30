@@ -1,4 +1,5 @@
-export { Clock, ClockOptions } from './lib/clock'
+export { createClock, Clock, ClockOptions, ClockContext } from './lib/clock'
 export { ClockEvent, EventCallback } from './lib/clockEvent'
 export { Ticker } from './types'
-export { createScriptProcessorTicker } from './lib/scriptProcessorTicker'
+export { createScriptProcessorTicker } from './lib/tickers/scriptProcessorTicker'
+export { createNoopTicker } from './lib/tickers/noopTicker'

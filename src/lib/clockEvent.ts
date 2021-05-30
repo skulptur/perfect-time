@@ -1,11 +1,11 @@
-import { Clock } from './clock'
+import { ClockContext } from './clock'
+import { Queue } from './queue'
 
 export type EventCallback = (event: ClockEvent) => void
 
 export class ClockEvent {
-  public clock: Clock
   public callback: EventCallback
-  public _cleared = false // Flag used to clear an event inside callback
+  private _cleared = false // Flag used to clear an event inside callback
 
   public toleranceLate: number
   public toleranceEarly: number
@@ -14,20 +14,24 @@ export class ClockEvent {
   public time: number = NaN
   public repeatTime: number | null = null
 
-  constructor(clock: Clock, deadline: number, callback: EventCallback) {
-    this.clock = clock
+  constructor(
+    public context: ClockContext,
+    public queue: Queue,
+    deadline: number,
+    callback: EventCallback
+  ) {
     this.callback = callback
     this._cleared = false // Flag used to clear an event inside callback
 
-    this.toleranceLate = clock.toleranceLate
-    this.toleranceEarly = clock.toleranceEarly
+    this.toleranceLate = queue.toleranceLate
+    this.toleranceEarly = queue.toleranceEarly
 
     this.schedule(deadline)
   }
 
   // Unschedules the event
   public clear() {
-    this.clock._removeEvent(this)
+    this.queue.removeEvent(this)
     this._cleared = true
     return this
   }
@@ -35,8 +39,9 @@ export class ClockEvent {
   // Sets the event to repeat every `time` seconds.
   public repeat(time: number) {
     if (time === 0) throw new Error('delay cannot be 0')
+
     this.repeatTime = time
-    if (!this.clock._hasEvent(this)) this.schedule(this.time + this.repeatTime)
+    if (!this.queue.isQueued(this)) this.schedule(this.time + this.repeatTime)
     return this
   }
 
@@ -44,13 +49,12 @@ export class ClockEvent {
   // The event will be executed in the interval `[deadline - early, deadline + late]`
   // If the clock fails to execute the event in time, the event will be dropped.
   public tolerance(values: Partial<{ early: number; late: number }>) {
-    // TODO: this check is useless if the type is correct :)
     if (typeof values.late === 'number') this.toleranceLate = values.late
     if (typeof values.early === 'number') this.toleranceEarly = values.early
     this._refreshEarlyLateDates()
-    if (this.clock._hasEvent(this)) {
-      this.clock._removeEvent(this)
-      this.clock._insertEvent(this)
+    if (this.queue.isQueued(this)) {
+      this.queue.removeEvent(this)
+      this.queue.insertEvent(this)
     }
     return this
   }
@@ -68,12 +72,12 @@ export class ClockEvent {
     this.time = deadline
     this._refreshEarlyLateDates()
 
-    if (this.clock.audioContext.currentTime >= this._earliestTime!) {
-      this._execute()
-    } else if (this.clock._hasEvent(this)) {
-      this.clock._removeEvent(this)
-      this.clock._insertEvent(this)
-    } else this.clock._insertEvent(this)
+    if (this.context.currentTime >= this._earliestTime!) {
+      this.run()
+    } else if (this.queue.isQueued(this)) {
+      this.queue.removeEvent(this)
+      this.queue.insertEvent(this)
+    } else this.queue.insertEvent(this)
   }
 
   public timeStretch(tRef: number, ratio: number) {
@@ -83,18 +87,20 @@ export class ClockEvent {
     // If the deadline is too close or past, and the event has a repeat,
     // we calculate the next repeat possible in the stretched space.
     if (this.isRepeated()) {
-      while (this.clock.audioContext.currentTime >= deadline - this.toleranceEarly)
+      while (this.context.currentTime >= deadline - this.toleranceEarly)
         deadline += this.repeatTime!
     }
     this.schedule(deadline)
   }
 
   // Executes the event
-  public _execute() {
-    if (this.clock._started === false) return
-    this.clock._removeEvent(this)
+  public run() {
+    // TODO: fix or remove
+    // if (this.queue.started === false) return
 
-    if (this.clock.audioContext.currentTime < this._latestTime!) this.callback(this)
+    this.queue.removeEvent(this)
+
+    if (this.context.currentTime < this._latestTime!) this.callback(this)
     else {
       // TODO: fix
       // @ts-expect-error
@@ -103,12 +109,12 @@ export class ClockEvent {
     }
     // In the case `schedule` is called inside `callback`, we need to avoid
     // overwriting with yet another `schedule`.
-    if (!this.clock._hasEvent(this) && this.isRepeated() && !this._cleared)
+    if (!this.queue.isQueued(this) && this.isRepeated() && !this._cleared)
       this.schedule(this.time + this.repeatTime!)
   }
 
   // Updates cached times
-  public _refreshEarlyLateDates() {
+  private _refreshEarlyLateDates() {
     this._latestTime = this.time + this.toleranceLate
     this._earliestTime = this.time - this.toleranceEarly
   }

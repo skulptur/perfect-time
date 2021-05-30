@@ -1,20 +1,17 @@
-import { Clock, ClockOptions, createScriptProcessorTicker } from '../src'
+import { createClock, createScriptProcessorTicker } from '../src'
 import { resumeContext } from 'audio-fns'
 
-const createClock = (audioContext: AudioContext, options?: Partial<ClockOptions>) => {
-  return new Clock(audioContext, options)
-}
-
 resumeContext(new AudioContext()).then((context) => {
-  const clock = createClock(context, {
+  const clock = createClock({
+    context,
     ticker: createScriptProcessorTicker(context),
   })
 
   clock.start()
 
   clock
-    .atTime(0, () => {
-      console.log('played')
+    .atTime(0, (event) => {
+      console.log('played', event)
     })
     .repeat(1)
 })
