@@ -50,7 +50,7 @@ class _Queue {
   // Stretches `deadline` and `repeat` of all scheduled `events` by `ratio`, keeping
   // their relative distance to `timeReference`, equivalent to changing the tempo.
   public timeStretch(
-    ratio: number = 1,
+    ratio: number,
     timeReference: number,
     events: Array<ClockEvent> = this._events
   ) {
