@@ -1,1 +1,2 @@
-export { noop } from './lib/noop'
+export { Clock, ClockOptions } from './lib/clock'
+export { ClockEvent, EventCallback } from './lib/clockEvent'
