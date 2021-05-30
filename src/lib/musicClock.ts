@@ -30,6 +30,7 @@ class _MusicClock {
 
   public start = this.clock.start.bind(this.clock)
   public stop = this.clock.stop.bind(this.clock)
+  public timeStretch = this.clock.timeStretch.bind(this.clock)
 
   // Schedules `callback` to run before `deadline` given in beats.
   public atBeat(deadline: number, callback: EventCallback) {
