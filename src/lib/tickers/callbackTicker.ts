@@ -2,9 +2,9 @@ import { noop } from '../utils/noop'
 import { Ticker } from '../../types'
 
 export const createCallbackTicker = (): [Ticker, () => void] => {
-  let _callback = noop
+  let _callback: (() => void) | null = noop
 
-  const ticker = {
+  const ticker: Ticker = {
     start: (callback) => {
       if (!_callback) return
       _callback = callback
@@ -19,7 +19,8 @@ export const createCallbackTicker = (): [Ticker, () => void] => {
   }
 
   const tick = () => {
-    _callback()
+    // will error if already disposed
+    _callback!()
   }
 
   return [ticker, tick]
