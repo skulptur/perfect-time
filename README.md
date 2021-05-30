@@ -35,8 +35,6 @@ clock
   .limit(10) // 10 times
 ```
 
-[Examples](https://github.com/skulptur/perfect-time/tree/master/example)
-
 ## API
 
 Note that AudioContext is used just for the sake of the examples as the clock is generic and can work with any `{ currentTime: number }`.
@@ -116,3 +114,5 @@ clock.setTimeout(9, (event) => {
   clock.timeStretch(0.5, event.time, [eventA, eventB])
 })
 ```
+
+[Examples](https://github.com/skulptur/perfect-time/tree/master/example)
