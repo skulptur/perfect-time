@@ -68,10 +68,10 @@ const callback = (event) => {
   oscNode.start(event.time)
 }
 
-// callback gets called right before context.currentTime reaches 10
+// callback gets called right before context.currentTime reaches 10 seconds
 clock.atTime(10, callback)
 
-// callback gets called right before 10 seconds elapsed and repeats
+// callback gets called immediately and and repeats every 10 seconds
 clock.every(10, callback)
 
 // callback gets called right before 10 seconds elapsed
