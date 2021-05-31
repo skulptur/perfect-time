@@ -1,6 +1,6 @@
 {
   "name": "perfect-time",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "author": "skulptur",
   "license": "MIT",
   "module": "dist/perfect-time.esm.js",
