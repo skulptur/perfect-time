@@ -21,7 +21,7 @@ export const manual = () => {
 
   clock
     .every(1, (event) => {
-      console.log('interval', event.count)
+      console.log('callback tick', event.count)
     })
     .limit(10)
 
