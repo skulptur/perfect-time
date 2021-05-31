@@ -15,13 +15,17 @@ npm install --save perfect-time
 Use
 
 ```typescript
-import { createClock, createScriptProcessorTicker } from 'perfect-time'
+import { createClock, createSetIntervalTicker } from 'perfect-time'
 
-const context = new AudioContext() // make sure it is resumed
+// Any object with updating currentTime will do (make sure it is resumed)
+const context = new AudioContext()
 
 const clock = createClock({
   context,
-  ticker: createScriptProcessorTicker(context),
+  // The ticker is what periodically runs the check for events.
+  // Ideally you would use a ticker in another thread but here
+  // we tick on the same thread every 100ms using setInterval.
+  ticker: createSetIntervalTicker(100),
 })
 
 clock.start()
@@ -30,7 +34,7 @@ clock
   .every(1, (event) => {
     console.log('every second:', event.count)
   })
-  .limit(10) // 10 times
+  .limit(10) // clear event after 10 times!
 ```
 
 ## API
@@ -50,9 +54,8 @@ import { createClock, createScriptProcessorTicker } from 'perfect-time'
 const clock = createClock({
   // For audio you'll want to pass AudioContext.
   context: audioContext,
-  // The ticker is what periodically runs the check for events.
-  // It should run on another thread if possible to prevent dropping events.
-  ticker: createScriptProcessorTicker(context), // for this one you actually need it to be an AudioContext for ScriptProcessorNode
+  // This one actually needs to receive an AudioContext as it uses ScriptProcessorNode internally
+  ticker: createScriptProcessorTicker(context),
 })
 ```
 
@@ -61,7 +64,7 @@ const clock = createClock({
 ```typescript
 const callback = (event) => {
   // use event.time to schedule precisely (for example using AudioContext)
-  console.log('event time:', event.time)
+  oscNode.start(event.time)
 }
 
 // callback gets called right before context.currentTime reaches 10
