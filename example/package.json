@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "audio-fns": "^0.3.2",
+    "data-fns": "^0.1.7",
     "react-app-polyfill": "^1.0.0"
   },
   "alias": {

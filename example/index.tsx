@@ -1,17 +1,16 @@
-import { createClock, createScriptProcessorTicker } from '../src'
+import { manual } from './src/manual'
+import { scriptProcessor } from './src/scriptProcessor'
 import { resumeContext } from 'audio-fns'
 
+const example = {
+  manual,
+  scriptProcessor,
+}
+
 resumeContext(new AudioContext()).then((context) => {
-  const clock = createClock({
-    context,
-    ticker: createScriptProcessorTicker(context),
-  })
+  console.log('- manual')
+  example.manual()
 
-  clock.start()
-
-  clock
-    .every(1, (event) => {
-      console.log('interval', event.count)
-    })
-    .limit(10)
+  console.log('- scriptProcessor')
+  example.scriptProcessor(context)
 })
