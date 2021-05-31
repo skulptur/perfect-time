@@ -1,8 +1,6 @@
 ## `perfect-time`
 
-A generic clock to schedule time events with precision in Typescript.
-
-Events have a configurable tolerance zone in which they must be executed or otherwise get dropped. This allows you to use the latest application state, for example with the Web Audio API. It also solves the issues with unreliable JS timers by accepting user or library provided tickers which can run on a separate thread.
+A generic clock that makes it easy to schedule repeating time based events with precision in Typescript. It works by calling scheduled events slightly before their side effects should take place, which is great in combination with Web Audio for example. This allows you to read the latest application state with little lookahead time and circumvent other issues with [javascript timers](https://www.html5rocks.com/en/tutorials/audio/scheduling/).
 
 ## Get started
 
@@ -36,6 +34,11 @@ clock
 ```
 
 ## API
+
+The clock works with user or library provided "tickers" that can run on a separate thread. The events have a time tolerance in which they must get executed or else they get dropped. You can tweak the early and late tolerance to suit your application.
+
+- Early: too high and there might be a noticeable lag between state is reflected in the side effects (say a knob move to cause a change in sound).
+- Late: too high and events might actually start getting executed past their deadline.
 
 Note that AudioContext is used just for the sake of the examples as the clock is generic and can work with any `{ currentTime: number }`.
 
@@ -115,4 +118,4 @@ clock.setTimeout(9, (event) => {
 })
 ```
 
-[Examples](https://github.com/skulptur/perfect-time/tree/master/example)
+[Examples](https://github.com/skulptur/perfect-time/tree/master/example/src)
