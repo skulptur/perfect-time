@@ -7,8 +7,16 @@
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "keywords": [
-    "functional"
+    "clock",
+    "time",
+    "scheduling",
+    "web audio",
+    "sequencer"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/skulptur/perfect-time"
+  },
   "files": [
     "dist",
     "src"
