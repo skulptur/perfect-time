@@ -100,12 +100,12 @@ clock
 **Cancel Events**
 
 ```typescript
-// start an oscillator node at context.currentTime = 13
+// start an oscillator node at context.currentTime = 1
 const event = clock.every(1, (event) => {
   oscNode.start(event.time)
 })
 
-// cancel
+// nevermind
 event.clear()
 ```
 
