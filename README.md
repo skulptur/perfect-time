@@ -58,7 +58,7 @@ const clock = createClock({
   // For audio you'll want to pass AudioContext.
   context: audioContext,
   // This one actually needs to receive an AudioContext as it uses ScriptProcessorNode internally
-  ticker: createScriptProcessorTicker(context),
+  ticker: createScriptProcessorTicker(audioContext),
 })
 ```
 
