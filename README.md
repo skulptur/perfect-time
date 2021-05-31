@@ -1,6 +1,6 @@
 ## `perfect-time`
 
-A generic clock that makes it easy to schedule repeating time based events with precision in Typescript. It works by calling scheduled events slightly before their side effects should take place, which is great in combination with Web Audio for example. This allows you to read the latest application state with little lookahead time and circumvent other issues with [javascript timers](https://www.html5rocks.com/en/tutorials/audio/scheduling/).
+A generic clock that makes it easy to schedule repeating time based events with precision in Typescript. It works by calling scheduled events slightly before their side effects should take place, which is great in combination with Web Audio for example. This allows you to circumvent [issues with javascript timers](https://www.html5rocks.com/en/tutorials/audio/scheduling/).
 
 ## Get started
 
@@ -113,7 +113,7 @@ event.clear()
 ```typescript
 const eventA = clock.atTime(1, () => console.log('event A')).repeat(3)
 const eventB = clock.atTime(2, () => console.log('event B')).repeat(3)
-const eventC = clock.atTime(3, () => console.log('event B')).repeat(3)
+const eventC = clock.atTime(3, () => console.log('event C')).repeat(3)
 
 // the speed will be doubled in 9 seconds only for eventA and eventB
 clock.setTimeout(9, (event) => {
