@@ -32,6 +32,7 @@ clock.start()
 
 clock
   .every(1, (event) => {
+    // AudioContext.currentTime is in seconds
     console.log('every second:', event.count)
   })
   .limit(10) // clear event after 10 times!
