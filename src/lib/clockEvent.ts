@@ -45,10 +45,15 @@ export const repeat = (interval: number, clockEvent: ClockEvent) => {
   return clockEvent
 }
 
-// Sets the event to repeat every `time` seconds, for `limit` times
-export const repeatN = (interval: number, limit: number, clockEvent: ClockEvent) => {
+// // Sets the event to repeat every `time` seconds, for `limit` times
+// export const repeatN = (interval: number, limit: number, clockEvent: ClockEvent) => {
+//   clockEvent._limit = limit
+//   return repeat(interval, clockEvent)
+// }
+
+export const limit = (limit: number, clockEvent: ClockEvent) => {
   clockEvent._limit = limit
-  return repeat(interval, clockEvent)
+  return clockEvent
 }
 
 // Sets the time tolerance of the event.

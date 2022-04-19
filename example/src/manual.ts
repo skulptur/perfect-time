@@ -1,4 +1,4 @@
-import { createClock, createCallbackTicker } from '../../src'
+import { createClock, createCallbackTicker, start, every, limit } from '../../src'
 import { times } from 'data-fns'
 
 export const manual = () => {
@@ -17,13 +17,17 @@ export const manual = () => {
     ticker,
   })
 
-  clock.start()
+  start(clock)
 
-  clock
-    .every(1, (event) => {
+  const event = every(
+    1,
+    (event) => {
       console.log('callback tick', event.count)
-    })
-    .limit(10)
+    },
+    clock
+  )
+
+  limit(10, event)
 
   // notice we loop 20 but only 10 events log :)
   times(20, next)

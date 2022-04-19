@@ -1,7 +1,19 @@
 // clocks
-export { createClock, Clock, ClockOptions, ClockContext } from './lib/clock'
+export {
+  createClock,
+  Clock,
+  ClockOptions,
+  ClockContext,
+  start,
+  stop,
+  every,
+  atTime,
+  setTimeout,
+  getCurrentTime,
+} from './lib/clock'
+export { timeStretch } from './lib/queue'
 export { createMusicClock, MusicClock, MusicClockOptions } from './lib/musicClock'
-export { ClockEvent, EventCallback } from './lib/clockEvent'
+export { ClockEvent, EventCallback, repeat, limit } from './lib/clockEvent'
 
 // tickers
 export { Ticker } from './types'

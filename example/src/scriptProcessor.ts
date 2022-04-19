@@ -1,4 +1,4 @@
-import { createClock, createScriptProcessorTicker } from '../../src'
+import { createClock, createScriptProcessorTicker, start, every, limit } from '../../src'
 
 export const scriptProcessor = (context: AudioContext) => {
   const clock = createClock({
@@ -6,11 +6,15 @@ export const scriptProcessor = (context: AudioContext) => {
     ticker: createScriptProcessorTicker(context),
   })
 
-  clock.start()
+  start(clock)
 
-  clock
-    .every(1, (event) => {
+  const event = every(
+    1,
+    (event) => {
       console.log('script processor', event.count)
-    })
-    .limit(10)
+    },
+    clock
+  )
+
+  limit(10, event)
 }

@@ -1,4 +1,4 @@
-import { createClock, createSetIntervalTicker } from '../../src'
+import { createClock, createSetIntervalTicker, start, every, limit } from '../../src'
 
 export const interval = (context) => {
   // tweak as fast or slow as you want
@@ -10,11 +10,15 @@ export const interval = (context) => {
     ticker,
   })
 
-  clock.start()
+  start(clock)
 
-  clock
-    .every(1, (event) => {
+  const event = every(
+    1,
+    (event) => {
       console.log('interval', event.count)
-    })
-    .limit(10)
+    },
+    clock
+  )
+
+  limit(10, event)
 }

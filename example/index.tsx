@@ -13,10 +13,10 @@ const example = {
 
 resumeContext(new AudioContext()).then((context) => {
   // console.log('- timeStretch')
-  example.timeStretch(context)
+  // example.timeStretch(context)
 
-  // console.log('- manual')
-  // example.manual()
+  console.log('- manual')
+  example.manual()
 
   // console.log('- interval')
   // example.interval(context)

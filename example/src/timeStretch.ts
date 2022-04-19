@@ -1,4 +1,4 @@
-import { createClock, createSetIntervalTicker } from '../../src'
+import { createClock, createSetIntervalTicker, start, atTime, timeStretch as stretch, setTimeout, repeat, getCurrentTime} from '../../src'
 
 export const timeStretch = (context) => {
   // tweak as fast or slow as you want
@@ -10,17 +10,17 @@ export const timeStretch = (context) => {
     ticker,
   })
 
-  clock.start()
+  start(clock)
 
-  const eventA = clock.atTime(1, () => console.log('event A')).repeat(3)
-  const eventB = clock.atTime(2, () => console.log('event B')).repeat(3)
-  const eventC = clock.atTime(3, () => console.log('event C')).repeat(3)
+  const eventA = repeat(3, atTime(1, () => console.log('event A'), clock))
+  const eventB = repeat(3, atTime(2, () => console.log('event B'), clock))
+  const eventC = repeat(3, atTime(3, () => console.log('event C'), clock))
 
   // the tempo will be doubled immediately for all events
-  clock.timeStretch(0.5)
+  stretch(0.5, getCurrentTime(clock), clock.queue._events)
 
   // the tempo will be halved in 9 seconds only for eventA and eventB
-  clock.setTimeout(9, (event) => {
-    clock.timeStretch(2, event.time, [eventA, eventB])
-  })
+  setTimeout(9, (event) => {
+    stretch(2, event.time, [eventA, eventB])
+  }, clock)
 }
