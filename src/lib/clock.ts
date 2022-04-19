@@ -1,5 +1,5 @@
-import { ClockEvent, EventCallback } from './clockEvent'
-import { createQueue, Queue, timeStretch, createEvent, clear, run } from './queue'
+import { EventCallback } from './clockEvent'
+import { createQueue, Queue, createEvent, clear, run } from './queue'
 import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
 import { toAbsoluteTime } from './utils/toAbsoluteTime'
@@ -19,71 +19,66 @@ export type ClockOptions = {
   ticker: Ticker
   context: ClockContext
 }
-class _Clock {
-  public context: ClockContext
-  public ticker: Ticker
-  public queue: Queue = createQueue()
-  private _started: boolean = false
 
-  constructor(options: Partial<ClockOptions> = {}) {
-    this.ticker = options.ticker || defaultOptions.ticker
-    this.context = options.context || defaultOptions.context
-  }
+export type Clock = {
+  context: ClockContext
+  ticker: Ticker
+  queue: Queue
+  _started: boolean
+}
 
-  // Get current time
-  public now() {
-    return this.context.currentTime
-  }
-
-  // Removes all scheduled events and start
-  public start() {
-    if (this._started) return
-
-    this._started = true
-    clear(this.queue)
-    this.ticker.start(() => run(this.context.currentTime, this.queue))
-  }
-
-  // Stops the clock
-  public stop() {
-    if (!this._started) return
-
-    this._started = false
-    this.ticker.stop()
-  }
-
-  // alias with default for `timeReference`
-  public timeStretch(
-    ratio: number,
-    timeReference: number = this.context.currentTime,
-    events?: Array<ClockEvent>
-  ) {
-    return timeStretch(ratio, timeReference, events || [])
-  }
-
-  // Schedules `callback` to run after `delay` seconds.
-  public setTimeout(delay: number, onEvent: EventCallback) {
-    return createEvent(this.context, toAbsoluteTime(delay, this.now()), onEvent, this.queue)
-  }
-
-  // Schedules `callback` to run after `delay` seconds and repeat indefinitely (until the event is manually cancelled or limited).
-  public setInterval(delay: number, onEvent: EventCallback) {
-    return this.setTimeout(delay, onEvent).repeat(delay)
-  }
-
-  // Schedules `callback` to run before `time`.
-  public atTime(time: number, onEvent: EventCallback) {
-    return createEvent(this.context, time, onEvent, this.queue)
-  }
-
-  // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).
-  public every(interval: number, onEvent: EventCallback) {
-    return this.atTime(this.now(), onEvent).repeat(interval)
+export const createClock = (options: Partial<ClockOptions> = {}): Clock => {
+  return {
+    ticker: options.ticker || defaultOptions.ticker,
+    context: options.context || defaultOptions.context,
+    queue: createQueue(),
+    _started: false,
   }
 }
 
-export type Clock = _Clock
+// Get current time
+export const getCurrentTime = (clock: Clock) => {
+  return clock.context.currentTime
+}
 
-export const createClock = (options?: Partial<ClockOptions>) => {
-  return new _Clock(options)
+// Removes all scheduled events and start
+export const start = (clock: Clock) => {
+  if (clock._started) return
+
+  clock._started = true
+  clear(clock.queue)
+  clock.ticker.start(() => run(clock.context.currentTime, clock.queue))
+}
+
+// Stops the clock
+export const stop = (clock: Clock) => {
+  if (!clock._started) return
+
+  clock._started = false
+  clock.ticker.stop()
+}
+
+// Schedules `callback` to run after `delay` seconds.
+export const setTimeout = (delay: number, onEvent: EventCallback, clock: Clock) => {
+  return createEvent(
+    clock.context,
+    toAbsoluteTime(delay, getCurrentTime(clock)),
+    onEvent,
+    clock.queue
+  )
+}
+
+// Schedules `callback` to run after `delay` seconds and repeat indefinitely (until the event is manually cancelled or limited).
+export const setInterval = (delay: number, onEvent: EventCallback, clock: Clock) => {
+  return setTimeout(delay, onEvent, clock).repeat(delay)
+}
+
+// Schedules `callback` to run before `time`.
+export const atTime = (time: number, onEvent: EventCallback, clock: Clock) => {
+  return createEvent(clock.context, time, onEvent, clock.queue)
+}
+
+// Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).
+export const every = (interval: number, onEvent: EventCallback, clock: Clock) => {
+  return atTime(getCurrentTime(clock), onEvent, clock).repeat(interval)
 }

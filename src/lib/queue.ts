@@ -71,7 +71,7 @@ export const timeStretch = (ratio: number, timeReference: number, events: Array<
 export const run = (currentTime: number, queue: Queue) => {
   let event = queue._events.shift()
   while (event && event._earliestTime! <= currentTime) {
-    event.run()
+    event.execute()
     event = queue._events.shift()
   }
 

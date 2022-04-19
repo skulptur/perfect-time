@@ -95,7 +95,7 @@ export class ClockEvent {
     this._refreshEarlyLateDates()
 
     if (this.context.currentTime >= this._earliestTime!) {
-      this.run()
+      this.execute()
     } else {
       removeEvent(this, this.queue)
       insertEvent(this, this.queue)
@@ -114,8 +114,7 @@ export class ClockEvent {
     this.schedule(deadline)
   }
 
-  // Executes the event
-  public run() {
+  public execute() {
     removeEvent(this, this.queue)
 
     const callback = this.context.currentTime < this._latestTime! ? this.onEvent : this.onExpire
