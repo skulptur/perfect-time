@@ -1,5 +1,11 @@
 import { ClockContext } from './clock'
-import { ClockEvent, EventCallback } from './clockEvent'
+import {
+  ClockEvent,
+  EventCallback,
+  createClockEvent,
+  execute,
+  applyTimeStretch,
+} from './clockEvent'
 import { indexByTime } from './utils/indexByTime'
 
 const defaultOptions: QueueOptions = {
@@ -42,7 +48,7 @@ export const createEvent = (
   callback: EventCallback,
   queue: Queue
 ) => {
-  return new ClockEvent(context, queue, deadline, callback)
+  return createClockEvent(context, queue, deadline, callback)
 }
 
 // Inserts an event to the list
@@ -61,7 +67,7 @@ export const removeEvent = (event: ClockEvent, queue: Queue) => {
 export const timeStretch = (ratio: number, timeReference: number, events: Array<ClockEvent>) => {
   if (ratio === 1) return
   events.forEach((event) => {
-    event.timeStretch(timeReference, ratio)
+    applyTimeStretch(timeReference, ratio, event)
   })
   return events
 }
@@ -71,7 +77,7 @@ export const timeStretch = (ratio: number, timeReference: number, events: Array<
 export const run = (currentTime: number, queue: Queue) => {
   let event = queue._events.shift()
   while (event && event._earliestTime! <= currentTime) {
-    event.execute()
+    execute(event)
     event = queue._events.shift()
   }
 

@@ -1,7 +1,7 @@
 import { Clock, ClockOptions, createClock, getCurrentTime, atTime } from './clock'
 import { timeStretch } from './queue'
 import { secondsToBeats, beatsToSeconds } from 'audio-fns'
-import { EventCallback } from './clockEvent'
+import { EventCallback, repeat } from './clockEvent'
 
 export type MusicClockOptions = {
   tempo: number
@@ -43,7 +43,6 @@ export const atBeat = (
 
 // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).
 export const everyBeat = (beatInterval: number, onEvent: EventCallback, musicClock: MusicClock) => {
-  return atBeat(beatInterval, onEvent, musicClock).repeat(
-    beatsToSeconds(beatInterval, musicClock.tempo)
-  )
+  const event = atBeat(beatInterval, onEvent, musicClock)
+  return repeat(beatsToSeconds(beatInterval, musicClock.tempo), event)
 }

@@ -1,4 +1,4 @@
-import { EventCallback } from './clockEvent'
+import { EventCallback, repeat } from './clockEvent'
 import { createQueue, Queue, createEvent, clear, run } from './queue'
 import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
@@ -70,7 +70,8 @@ export const setTimeout = (delay: number, onEvent: EventCallback, clock: Clock) 
 
 // Schedules `callback` to run after `delay` seconds and repeat indefinitely (until the event is manually cancelled or limited).
 export const setInterval = (delay: number, onEvent: EventCallback, clock: Clock) => {
-  return setTimeout(delay, onEvent, clock).repeat(delay)
+  const event = setTimeout(delay, onEvent, clock)
+  return repeat(delay, event)
 }
 
 // Schedules `callback` to run before `time`.
@@ -80,5 +81,6 @@ export const atTime = (time: number, onEvent: EventCallback, clock: Clock) => {
 
 // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).
 export const every = (interval: number, onEvent: EventCallback, clock: Clock) => {
-  return atTime(getCurrentTime(clock), onEvent, clock).repeat(interval)
+  const event = atTime(getCurrentTime(clock), onEvent, clock)
+  return repeat(interval, event)
 }
