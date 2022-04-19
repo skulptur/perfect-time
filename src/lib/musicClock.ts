@@ -1,4 +1,5 @@
 import { Clock, ClockOptions, createClock } from './clock'
+import { timeStretch } from './queue'
 import { secondsToBeats, beatsToSeconds } from 'audio-fns'
 import { EventCallback } from './clockEvent'
 
@@ -45,7 +46,7 @@ class _MusicClock {
   public setTempo = (tempo: number) => {
     const ratio = this.tempo / tempo
     this.tempo = tempo
-    return this.clock.queue.timeStretch(ratio, this.clock.now())
+    return timeStretch(ratio, this.clock.now(), this.clock.queue._events)
   }
 
   public getTempo = () => {

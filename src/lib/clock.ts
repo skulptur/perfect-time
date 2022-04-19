@@ -1,5 +1,5 @@
 import { ClockEvent, EventCallback } from './clockEvent'
-import { createQueue, Queue } from './queue'
+import { createQueue, Queue, timeStretch, createEvent, clear, run } from './queue'
 import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
 import { toAbsoluteTime } from './utils/toAbsoluteTime'
@@ -40,8 +40,8 @@ class _Clock {
     if (this._started) return
 
     this._started = true
-    this.queue.clear()
-    this.ticker.start(() => this.queue.run(this.context.currentTime))
+    clear(this.queue)
+    this.ticker.start(() => run(this.context.currentTime, this.queue))
   }
 
   // Stops the clock
@@ -58,12 +58,12 @@ class _Clock {
     timeReference: number = this.context.currentTime,
     events?: Array<ClockEvent>
   ) {
-    return this.queue.timeStretch(ratio, timeReference, events)
+    return timeStretch(ratio, timeReference, events || [])
   }
 
   // Schedules `callback` to run after `delay` seconds.
   public setTimeout(delay: number, onEvent: EventCallback) {
-    return this.queue.createEvent(this.context, toAbsoluteTime(delay, this.now()), onEvent)
+    return createEvent(this.context, toAbsoluteTime(delay, this.now()), onEvent, this.queue)
   }
 
   // Schedules `callback` to run after `delay` seconds and repeat indefinitely (until the event is manually cancelled or limited).
@@ -73,7 +73,7 @@ class _Clock {
 
   // Schedules `callback` to run before `time`.
   public atTime(time: number, onEvent: EventCallback) {
-    return this.queue.createEvent(this.context, time, onEvent)
+    return createEvent(this.context, time, onEvent, this.queue)
   }
 
   // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).

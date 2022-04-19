@@ -1,5 +1,5 @@
 import { ClockContext } from './clock'
-import { Queue } from './queue'
+import { Queue, isQueued, removeEvent, insertEvent } from './queue'
 
 export type EventCallback = (event: ClockEvent) => void
 export type Tolerance = { early: number; late: number }
@@ -40,7 +40,7 @@ export class ClockEvent {
 
   // Unschedules the event
   public clear() {
-    this.queue.removeEvent(this)
+    removeEvent(this, this.queue)
     this._cleared = true
     return this
   }
@@ -52,7 +52,7 @@ export class ClockEvent {
     this.interval = safeRepeatTime
     this._limit = limit
 
-    if (!this.queue.isQueued(this)) {
+    if (!isQueued(this, this.queue)) {
       this.schedule(this.time + this.interval)
     }
     return this
@@ -72,9 +72,9 @@ export class ClockEvent {
     if (typeof values.late === 'number') this.toleranceLate = values.late
     if (typeof values.early === 'number') this.toleranceEarly = values.early
     this._refreshEarlyLateDates()
-    if (this.queue.isQueued(this)) {
-      this.queue.removeEvent(this)
-      this.queue.insertEvent(this)
+    if (isQueued(this, this.queue)) {
+      removeEvent(this, this.queue)
+      insertEvent(this, this.queue)
     }
     return this
   }
@@ -97,8 +97,8 @@ export class ClockEvent {
     if (this.context.currentTime >= this._earliestTime!) {
       this.run()
     } else {
-      this.queue.removeEvent(this)
-      this.queue.insertEvent(this)
+      removeEvent(this, this.queue)
+      insertEvent(this, this.queue)
     }
   }
 
@@ -116,7 +116,7 @@ export class ClockEvent {
 
   // Executes the event
   public run() {
-    this.queue.removeEvent(this)
+    removeEvent(this, this.queue)
 
     const callback = this.context.currentTime < this._latestTime! ? this.onEvent : this.onExpire
     callback(this)
@@ -125,7 +125,7 @@ export class ClockEvent {
 
     // In the case `schedule` is called inside `onEvent`, we need to avoid
     // overwriting with yet another `schedule`.
-    if (!this.queue.isQueued(this) && this.isRepeated() && !this._cleared) {
+    if (!isQueued(this, this.queue) && this.isRepeated() && !this._cleared) {
       this.schedule(this.time + this.interval!)
     }
   }

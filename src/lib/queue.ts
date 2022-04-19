@@ -12,71 +12,69 @@ export type QueueOptions = {
   toleranceLate: number
 }
 
-class _Queue {
-  public toleranceEarly: number
-  public toleranceLate: number
-  public _events: Array<ClockEvent> = []
+export type Queue = {
+  toleranceEarly: number
+  toleranceLate: number
+  _events: Array<ClockEvent>
+}
 
-  constructor(options: Partial<QueueOptions> = {}) {
-    this.toleranceEarly = options.toleranceEarly || defaultOptions.toleranceEarly
-    this.toleranceLate = options.toleranceLate || defaultOptions.toleranceLate
-  }
-
-  public clear() {
-    this._events = []
-  }
-
-  // Returns true if `event` is in queue, false otherwise
-  public isQueued(event: ClockEvent) {
-    return this._events.includes(event)
-  }
-
-  // Creates an event and insert it to the list
-  public createEvent(context: ClockContext, deadline: number, callback: EventCallback) {
-    return new ClockEvent(context, this, deadline, callback)
-  }
-
-  // Inserts an event to the list
-  public insertEvent(event: ClockEvent) {
-    this._events.splice(indexByTime(event._earliestTime!, this._events), 0, event)
-  }
-
-  // Removes an event from the list
-  public removeEvent(event: ClockEvent) {
-    let index = this._events.indexOf(event)
-    if (index !== -1) this._events.splice(index, 1)
-  }
-
-  // Stretches `deadline` and `repeat` of all scheduled `events` by `ratio`, keeping
-  // their relative distance to `timeReference`, equivalent to changing the tempo.
-  public timeStretch(
-    ratio: number,
-    timeReference: number,
-    events: Array<ClockEvent> = this._events
-  ) {
-    if (ratio === 1) return
-    events.forEach((event) => {
-      event.timeStretch(timeReference, ratio)
-    })
-    return events
-  }
-
-  // This function is ran periodically, and at each tick it executes
-  // events for which `currentTime` is included in their tolerance interval.
-  public run(currentTime: number) {
-    let event = this._events.shift()
-    while (event && event._earliestTime! <= currentTime) {
-      event.run()
-      event = this._events.shift()
-    }
-
-    // Put back the last event
-    if (event) this._events.unshift(event)
+export const createQueue = (options: Partial<QueueOptions> = {}): Queue => {
+  return {
+    toleranceEarly: options.toleranceEarly || defaultOptions.toleranceEarly,
+    toleranceLate: options.toleranceLate || defaultOptions.toleranceLate,
+    _events: [],
   }
 }
 
-export type Queue = ReturnType<typeof createQueue>
+export const clear = (queue: Queue) => {
+  queue._events = []
+}
 
-export const createQueue = (options?: Partial<QueueOptions>) => {
-  return new _Queue(options)
+// Returns true if `event` is in queue, false otherwise
+export const isQueued = (event: ClockEvent, queue: Queue) => {
+  return queue._events.includes(event)
+}
+
+// Creates an event and insert it to the list
+export const createEvent = (
+  context: ClockContext,
+  deadline: number,
+  callback: EventCallback,
+  queue: Queue
+) => {
+  return new ClockEvent(context, queue, deadline, callback)
+}
+
+// Inserts an event to the list
+export const insertEvent = (event: ClockEvent, queue: Queue) => {
+  queue._events.splice(indexByTime(event._earliestTime!, queue._events), 0, event)
+}
+
+// Removes an event from the list
+export const removeEvent = (event: ClockEvent, queue: Queue) => {
+  const index = queue._events.indexOf(event)
+  if (index !== -1) queue._events.splice(index, 1)
+}
+
+// Stretches `deadline` and `repeat` of all scheduled `events` by `ratio`, keeping
+// their relative distance to `timeReference`, equivalent to changing the tempo.
+export const timeStretch = (ratio: number, timeReference: number, events: Array<ClockEvent>) => {
+  if (ratio === 1) return
+  events.forEach((event) => {
+    event.timeStretch(timeReference, ratio)
+  })
+  return events
+}
+
+// This function is ran periodically
+// at each tick it executes events for which `currentTime` is included in their tolerance interval.
+export const run = (currentTime: number, queue: Queue) => {
+  let event = queue._events.shift()
+  while (event && event._earliestTime! <= currentTime) {
+    event.run()
+    event = queue._events.shift()
+  }
+
+  // Put back the last event
+  if (event) queue._events.unshift(event)
 }
