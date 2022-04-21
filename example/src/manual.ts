@@ -22,12 +22,12 @@ export const manual = () => {
   const event = every(
     1,
     (event) => {
-      console.log('callback tick', event.count)
+      console.log('callback tick', event.count, event)
     },
     clock
   )
 
-  limit(10, event)
+  limit(10, event, clock.queue)
 
   // notice we loop 20 but only 10 events log :)
   times(20, next)

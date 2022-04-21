@@ -4,6 +4,7 @@ import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
 import { toAbsoluteTime } from './utils/toAbsoluteTime'
 
+export type Tolerance = { early: number; late: number }
 const defaultOptions: ClockOptions = {
   ticker: createNoopTicker(),
   context: {

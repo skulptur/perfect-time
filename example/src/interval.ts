@@ -20,5 +20,5 @@ export const interval = (context) => {
     clock
   )
 
-  limit(10, event)
+  limit(10, event, clock.queue)
 }

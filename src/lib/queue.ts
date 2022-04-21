@@ -1,27 +1,13 @@
 import { ClockContext } from './clock'
-import { ClockEvent, EventCallback, createClockEvent, refreshEarlyLateDates, isRepeated, Tolerance } from './clockEvent'
+import { ClockEvent, EventCallback, createClockEvent, updateEarlyLateDates, hasInterval } from './clockEvent'
 import { indexByTime } from './utils/indexByTime'
 
-const defaultOptions: QueueOptions = {
-  toleranceLate: 0.1,
-  toleranceEarly: 0.001,
-}
-
-export type QueueOptions = {
-  toleranceEarly: number
-  toleranceLate: number
-}
-
 export type Queue = {
-  toleranceEarly: number
-  toleranceLate: number
   _events: Array<ClockEvent>
 }
 
-export const createQueue = (options: Partial<QueueOptions> = {}): Queue => {
+export const createQueue = (): Queue => {
   return {
-    toleranceEarly: options.toleranceEarly || defaultOptions.toleranceEarly,
-    toleranceLate: options.toleranceLate || defaultOptions.toleranceLate,
     _events: [],
   }
 }
@@ -36,9 +22,9 @@ export const isQueued = (event: ClockEvent, queue: Queue) => {
 }
 
 // Creates an event and insert it to the list
-export const createEvent = (context: ClockContext, deadline: number, callback: EventCallback, queue: Queue) => {
-  const clockEvent = createClockEvent(context, queue.toleranceEarly, queue.toleranceLate, callback)
-  schedule(deadline, clockEvent, queue)
+export const createEvent = (context: ClockContext, time: number, callback: EventCallback, queue: Queue) => {
+  const clockEvent = createClockEvent(context, callback)
+  schedule(time, clockEvent, queue)
   return clockEvent
 }
 
@@ -58,21 +44,20 @@ export const removeEvent = (event: ClockEvent, queue: Queue) => {
   if (index !== -1) queue._events.splice(index, 1)
 }
 
-// Stretches `deadline` and `repeat` of all scheduled `events` by `ratio`, keeping
+// Stretches `time` and `repeat` of all scheduled `events` by `ratio`, keeping
 // their relative distance to `timeReference`, equivalent to changing the tempo.
 export const timeStretch = (ratio: number, timeReference: number, clockEvents: Array<ClockEvent>, queue: Queue) => {
   if (ratio === 1) return
 
   clockEvents.forEach((clockEvent) => {
-    if (isRepeated(clockEvent)) clockEvent.interval = clockEvent.interval! * ratio
-
-    let deadline = timeReference + ratio * (clockEvent.time - timeReference)
-    // If the deadline is too close or past, and the event has a repeat,
-    // we calculate the next repeat possible in the stretched space.
-    if (isRepeated(clockEvent)) {
-      while (clockEvent.context.currentTime >= deadline - clockEvent.toleranceEarly) deadline += clockEvent.interval!
+    let time = timeReference + ratio * (clockEvent.time - timeReference)
+    // If the time is too close or past, and the event has a repeat,
+    // calculate the next repeat possible in the stretched space.
+    if (hasInterval(clockEvent)) {
+      clockEvent.interval = clockEvent.interval! * ratio
+      while (clockEvent.context.currentTime >= time - clockEvent.toleranceEarly) time += clockEvent.interval!
     }
-    schedule(deadline, clockEvent, queue)
+    schedule(time, clockEvent, queue)
   })
 
   return clockEvents
@@ -91,35 +76,27 @@ export const run = (currentTime: number, queue: Queue) => {
   if (clockEvent) queue._events.unshift(clockEvent)
 }
 
-// Schedules the event to be ran before `deadline`.
+// Schedules the event to be ran before `time`.
 // If the time is within the event tolerance, we handle the event immediately.
 // If the event was already scheduled at a different time, it is rescheduled.
-export const schedule = (deadline: number, clockEvent: ClockEvent, queue: Queue) => {
-  if (clockEvent._limit <= clockEvent.count) return
+export const schedule = (time: number, clockEvent: ClockEvent, queue: Queue) => {
+  if (clockEvent._limit <= clockEvent.count) return removeEvent(clockEvent, queue)
 
-  clockEvent._cleared = false
-  clockEvent.time = deadline
-  refreshEarlyLateDates(clockEvent)
+  clockEvent.time = time
+  updateEarlyLateDates(clockEvent)
 
   clockEvent.context.currentTime >= clockEvent._earliestTime!
     ? execute(clockEvent, queue)
     : updateIndex(clockEvent, queue)
 }
 
-// Unschedules the event
-export const unschedule = (clockEvent: ClockEvent, queue: Queue) => {
-  removeEvent(clockEvent, queue)
-  clockEvent._cleared = true
-  return clockEvent
-}
-
 // Sets the time tolerance of the event.
-// The event will be executed in the interval `[deadline - early, deadline + late]`
+// The event will be executed in the interval `[time - early, time + late]`
 // If the clock fails to execute the event in time, the event will be dropped.
-export const setTolerance = (values: Partial<Tolerance>, clockEvent: ClockEvent, queue: Queue) => {
-  if (typeof values.late === 'number') clockEvent.toleranceLate = values.late
-  if (typeof values.early === 'number') clockEvent.toleranceEarly = values.early
-  refreshEarlyLateDates(clockEvent)
+export const setTolerance = (toleranceEarly: number, toleranceLate: number, clockEvent: ClockEvent, queue: Queue) => {
+  clockEvent.toleranceEarly = toleranceEarly
+  clockEvent.toleranceLate = toleranceLate
+  updateEarlyLateDates(clockEvent)
   isQueued(clockEvent, queue) && updateIndex(clockEvent, queue)
 
   return clockEvent
@@ -135,7 +112,7 @@ export const execute = (clockEvent: ClockEvent, queue: Queue) => {
 
   // In the case `schedule` is called inside `onEvent`, we need to avoid
   // overwriting with yet another `schedule`.
-  if (!isQueued(clockEvent, queue) && isRepeated(clockEvent) && !clockEvent._cleared) {
+  if (!isQueued(clockEvent, queue) && hasInterval(clockEvent)) {
     schedule(clockEvent.time + clockEvent.interval!, clockEvent, queue)
   }
 }
@@ -152,8 +129,8 @@ export const repeat = (interval: number, clockEvent: ClockEvent, queue: Queue) =
   return clockEvent
 }
 
-export const limit = (limit: number, clockEvent: ClockEvent) => {
+export const limit = (limit: number, clockEvent: ClockEvent, queue: Queue) => {
   clockEvent._limit = limit
-  // TODO: might need to also remove from queue if limit has been reached
+  if (clockEvent._limit <= clockEvent.count) return removeEvent(clockEvent, queue)
   return clockEvent
 }

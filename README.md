@@ -45,7 +45,7 @@ clock
 The clock works with user or library provided "tickers" that can run on a separate thread. The events have a time tolerance in which they must get executed or else they get dropped. You can tweak the early and late tolerance to suit your application.
 
 - Early: too high and there might be a noticeable lag between state is reflected in the side effects (say a knob move to cause a change in sound).
-- Late: too high and events might actually start getting executed past their deadline.
+- Late: too high and events might actually start getting executed past their time.
 
 Note that AudioContext is used just for the sake of the examples as the clock is generic and can work with any `{ currentTime: number }`.
 

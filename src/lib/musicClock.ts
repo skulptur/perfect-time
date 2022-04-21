@@ -30,9 +30,9 @@ export const setTempo = (tempo: number, musicClock: MusicClock) => {
   return timeStretch(ratio, getCurrentTime(musicClock), musicClock.queue._events, musicClock.queue)
 }
 
-// Schedules `callback` to run before `deadline` given in beats.
-export const atBeat = (deadlineInBeats: number, callback: EventCallback, musicClock: MusicClock) => {
-  return atTime(beatsToSeconds(deadlineInBeats, musicClock.tempo), callback, musicClock)
+// Schedules `callback` to run before `time` given in beats.
+export const atBeat = (timeInBeats: number, callback: EventCallback, musicClock: MusicClock) => {
+  return atTime(beatsToSeconds(timeInBeats, musicClock.tempo), callback, musicClock)
 }
 
 // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).
