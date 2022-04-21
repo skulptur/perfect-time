@@ -1,7 +1,7 @@
 import { Clock, ClockOptions, createClock, getCurrentTime, atTime } from './clock'
-import { timeStretch } from './queue'
+import { timeStretch, repeat } from './queue'
 import { secondsToBeats, beatsToSeconds } from 'audio-fns'
-import { EventCallback, repeat } from './clockEvent'
+import { EventCallback } from './clockEvent'
 
 export type MusicClockOptions = {
   tempo: number
@@ -13,9 +13,7 @@ const defaultOptions: MusicClockOptions = {
 
 export type MusicClock = MusicClockOptions & Clock
 
-export const createMusicClock = (
-  options: Partial<MusicClockOptions & ClockOptions> = {}
-): MusicClock => {
+export const createMusicClock = (options: Partial<MusicClockOptions & ClockOptions> = {}): MusicClock => {
   return {
     ...createClock(options),
     tempo: options.tempo || defaultOptions.tempo,
@@ -29,20 +27,16 @@ export const getCurrentBeat = (musicClock: MusicClock) => {
 export const setTempo = (tempo: number, musicClock: MusicClock) => {
   const ratio = musicClock.tempo / tempo
   musicClock.tempo = tempo
-  return timeStretch(ratio, getCurrentTime(musicClock), musicClock.queue._events)
+  return timeStretch(ratio, getCurrentTime(musicClock), musicClock.queue._events, musicClock.queue)
 }
 
 // Schedules `callback` to run before `deadline` given in beats.
-export const atBeat = (
-  deadlineInBeats: number,
-  callback: EventCallback,
-  musicClock: MusicClock
-) => {
+export const atBeat = (deadlineInBeats: number, callback: EventCallback, musicClock: MusicClock) => {
   return atTime(beatsToSeconds(deadlineInBeats, musicClock.tempo), callback, musicClock)
 }
 
 // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).
 export const everyBeat = (beatInterval: number, onEvent: EventCallback, musicClock: MusicClock) => {
   const event = atBeat(beatInterval, onEvent, musicClock)
-  return repeat(beatsToSeconds(beatInterval, musicClock.tempo), event)
+  return repeat(beatsToSeconds(beatInterval, musicClock.tempo), event, musicClock.queue)
 }

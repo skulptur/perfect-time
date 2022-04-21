@@ -11,9 +11,9 @@ export {
   setTimeout,
   getCurrentTime,
 } from './lib/clock'
-export { timeStretch } from './lib/queue'
+export { timeStretch, repeat, limit } from './lib/queue'
 export { createMusicClock, MusicClock, MusicClockOptions } from './lib/musicClock'
-export { ClockEvent, EventCallback, repeat, limit } from './lib/clockEvent'
+export { ClockEvent, EventCallback } from './lib/clockEvent'
 
 // tickers
 export { Ticker } from './types'

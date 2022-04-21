@@ -1,5 +1,5 @@
-import { EventCallback, repeat } from './clockEvent'
-import { createQueue, Queue, createEvent, clear, run } from './queue'
+import { EventCallback } from './clockEvent'
+import { createQueue, Queue, createEvent, clear, run, repeat } from './queue'
 import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
 import { toAbsoluteTime } from './utils/toAbsoluteTime'
@@ -60,18 +60,13 @@ export const stop = (clock: Clock) => {
 
 // Schedules `callback` to run after `delay` seconds.
 export const setTimeout = (delay: number, onEvent: EventCallback, clock: Clock) => {
-  return createEvent(
-    clock.context,
-    toAbsoluteTime(delay, getCurrentTime(clock)),
-    onEvent,
-    clock.queue
-  )
+  return createEvent(clock.context, toAbsoluteTime(delay, getCurrentTime(clock)), onEvent, clock.queue)
 }
 
 // Schedules `callback` to run after `delay` seconds and repeat indefinitely (until the event is manually cancelled or limited).
 export const setInterval = (delay: number, onEvent: EventCallback, clock: Clock) => {
   const event = setTimeout(delay, onEvent, clock)
-  return repeat(delay, event)
+  return repeat(delay, event, clock.queue)
 }
 
 // Schedules `callback` to run before `time`.
@@ -82,5 +77,5 @@ export const atTime = (time: number, onEvent: EventCallback, clock: Clock) => {
 // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).
 export const every = (interval: number, onEvent: EventCallback, clock: Clock) => {
   const event = atTime(getCurrentTime(clock), onEvent, clock)
-  return repeat(interval, event)
+  return repeat(interval, event, clock.queue)
 }
