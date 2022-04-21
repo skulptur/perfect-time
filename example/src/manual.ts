@@ -1,4 +1,4 @@
-import { createClock, createCallbackTicker, start, every, limit } from '../../src'
+import { createTimeline, createCallbackTicker, play, stop, createEvent } from '../../src'
 import { times } from 'data-fns'
 
 export const manual = () => {
@@ -12,23 +12,20 @@ export const manual = () => {
     tick()
   }
 
-  const clock = createClock({
+  const timeline = createTimeline({
     context,
     ticker,
   })
 
-  start(clock)
+  createEvent(1, 1, 10, (event) => console.log('callback tick', event.count), timeline)
 
-  const event = every(
-    1,
-    (event) => {
-      console.log('callback tick', event.count, event)
-    },
-    clock
-  )
+  play(timeline)
+  // notice we tick 20 but only 10 events log :)
+  times(20, next)
 
-  limit(10, event, clock.queue)
+  stop(timeline)
 
-  // notice we loop 20 but only 10 events log :)
+  play(timeline)
+  // notice we tick 20 but only 10 events log :)
   times(20, next)
 }
