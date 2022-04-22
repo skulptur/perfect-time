@@ -62,9 +62,14 @@ export const play = (timeline: Timeline) => {
   if (isPlaying(timeline)) return
 
   const currentTime = getCurrentTime(timeline)
-  // TODO: implement pause time math
-  timeline._startTime = currentTime
-  timeline._timeEvents.forEach((timeEvent) => schedule(timeEvent.time + currentTime, { ...timeEvent }, timeline))
+
+  if (isPaused(timeline)) {
+    // TODO: not finished
+    timeline._startTime = timeline._pauseTime - currentTime + timeline._startTime
+  } else {
+    timeline._startTime = currentTime
+    timeline._timeEvents.forEach((timeEvent) => schedule(timeEvent.time + currentTime, { ...timeEvent }, timeline))
+  }
 
   timeline.ticker.start(() => update(getCurrentTime(timeline), timeline))
 }
@@ -75,6 +80,13 @@ export const stop = (timeline: Timeline) => {
   timeline._startTime = NaN
   timeline._pauseTime = NaN
   clear(timeline._playbackQueue)
+  timeline.ticker.stop()
+}
+
+export const pause = (timeline: Timeline) => {
+  if (isPaused(timeline)) return
+
+  timeline._pauseTime = getCurrentTime(timeline)
   timeline.ticker.stop()
 }
 
