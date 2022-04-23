@@ -36,6 +36,12 @@ export const removeEvent = (event: TimeEvent, queue: Queue) => {
   if (index !== -1) queue._events.splice(index, 1)
 }
 
+// change the event time and update index
+export const moveTimeEvent = (time: number, timeEvent: TimeEvent, queue: Queue) => {
+  timeEvent.time = time
+  isQueued(timeEvent, queue) && updateIndex(timeEvent, queue)
+}
+
 // Sets the time tolerance of the event.
 // The event will be executed in the interval `[time - early, time + late]`
 // If the clock fails to execute the event in time, the event will be dropped.

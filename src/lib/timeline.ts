@@ -1,5 +1,5 @@
 import { createTimeEvent, EventCallback, hasInterval, TimeEvent, updateEarlyLateDates } from './timeEvent'
-import { createQueue, Queue, clear, removeEvent, updateIndex, isQueued } from './queue'
+import { createQueue, Queue, clear, removeEvent, updateIndex, isQueued, moveTimeEvent } from './queue'
 import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
 
@@ -26,8 +26,8 @@ export type Timeline = {
   ticker: Ticker
   _timeEvents: Array<TimeEvent>
   _playbackQueue: Queue
-  _startTime: number
-  _pauseTime: number
+  _startTime: number | null
+  _pauseTime: number | null
 }
 
 export const createTimeline = (options: Partial<TimelineOptions> = {}): Timeline => {
@@ -36,40 +36,58 @@ export const createTimeline = (options: Partial<TimelineOptions> = {}): Timeline
     context: options.context || defaultOptions.context,
     _timeEvents: [],
     _playbackQueue: createQueue(),
-    _startTime: NaN,
-    _pauseTime: NaN,
+    _startTime: null,
+    _pauseTime: null,
   }
 }
 
-// Get current time
 export const getCurrentTime = (timeline: Timeline) => {
   return timeline.context.currentTime
 }
 
+export const getElapsedTime = (timeline: Timeline) => {
+  return timeline._startTime === null ? 0 : getCurrentTime(timeline) - timeline._startTime
+}
+
 export const isStopped = (timeline: Timeline) => {
-  return timeline._startTime === NaN && timeline._pauseTime === NaN
+  return timeline._startTime === null && timeline._pauseTime === null
 }
 
 export const isPaused = (timeline: Timeline) => {
-  return timeline._pauseTime !== NaN
+  return timeline._pauseTime !== null
 }
 
 export const isPlaying = (timeline: Timeline) => {
-  return timeline._startTime !== NaN && timeline._pauseTime === NaN
+  return timeline._startTime !== null && timeline._pauseTime === null
+}
+
+export const resume = (timeline: Timeline) => {
+  if (!isPaused(timeline)) return
+
+  const pauseDuration = getCurrentTime(timeline) - timeline._pauseTime!
+  // shift startTime so it's like it was never paused
+  timeline._startTime = timeline._startTime! + pauseDuration
+  timeline._pauseTime = null
+  // shift all queued events times
+  timeline._playbackQueue._events.forEach((timeEvent) => {
+    moveTimeEvent(timeEvent.time + pauseDuration, timeEvent, timeline._playbackQueue)
+  })
+}
+
+export const start = (timeline: Timeline) => {
+  if (!isStopped(timeline)) return
+
+  const currentTime = getCurrentTime(timeline)
+
+  timeline._startTime = currentTime
+  timeline._timeEvents.forEach((timeEvent) => schedule(timeEvent.time + currentTime, { ...timeEvent }, timeline))
 }
 
 export const play = (timeline: Timeline) => {
   if (isPlaying(timeline)) return
 
-  const currentTime = getCurrentTime(timeline)
-
-  if (isPaused(timeline)) {
-    // TODO: not finished
-    timeline._startTime = timeline._pauseTime - currentTime + timeline._startTime
-  } else {
-    timeline._startTime = currentTime
-    timeline._timeEvents.forEach((timeEvent) => schedule(timeEvent.time + currentTime, { ...timeEvent }, timeline))
-  }
+  resume(timeline)
+  start(timeline)
 
   timeline.ticker.start(() => update(getCurrentTime(timeline), timeline))
 }
@@ -77,8 +95,8 @@ export const play = (timeline: Timeline) => {
 export const stop = (timeline: Timeline) => {
   if (isStopped(timeline)) return
 
-  timeline._startTime = NaN
-  timeline._pauseTime = NaN
+  timeline._startTime = null
+  timeline._pauseTime = null
   clear(timeline._playbackQueue)
   timeline.ticker.stop()
 }
