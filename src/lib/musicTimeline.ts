@@ -1,4 +1,4 @@
-import { Timeline, TimelineOptions, createTimeline, getCurrentTime, createEvent, timeStretch, repeat } from './timeline'
+import { Timeline, TimelineOptions, createTimeline, getContextTime, createEvent, timeStretch, repeat } from './timeline'
 import { secondsToBeats, beatsToSeconds } from 'audio-fns'
 import { EventCallback } from './timeEvent'
 
@@ -20,13 +20,13 @@ export const createMusicTimeline = (options: Partial<MusicTimelineOptions & Time
 }
 
 export const getCurrentBeat = (musicTimeline: MusicTimeline) => {
-  return secondsToBeats(getCurrentTime(musicTimeline), musicTimeline.tempo)
+  return secondsToBeats(getContextTime(musicTimeline), musicTimeline.tempo)
 }
 
 export const setTempo = (tempo: number, musicTimeline: MusicTimeline) => {
   const ratio = musicTimeline.tempo / tempo
   musicTimeline.tempo = tempo
-  return timeStretch(ratio, getCurrentTime(musicTimeline), musicTimeline._playbackQueue._events, musicTimeline)
+  return timeStretch(ratio, getContextTime(musicTimeline), musicTimeline._playbackQueue._events, musicTimeline)
 }
 
 // Schedules `callback` to run before `time` given in beats.

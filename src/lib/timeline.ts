@@ -73,12 +73,12 @@ export const createTimeline = (options: Partial<TimelineOptions> = {}): Timeline
   }
 }
 
-export const getCurrentTime = (timeline: Timeline) => {
+export const getContextTime = (timeline: Timeline) => {
   return timeline.context.currentTime
 }
 
 export const getElapsedTime = (timeline: Timeline) => {
-  return timeline._startTime === null ? 0 : getCurrentTime(timeline) - timeline._startTime
+  return timeline._startTime === null ? 0 : getContextTime(timeline) - timeline._startTime
 }
 
 export const isStopped = (timeline: Timeline) => {
@@ -96,7 +96,7 @@ export const isPlaying = (timeline: Timeline) => {
 const resume = (timeline: Timeline) => {
   if (!isPaused(timeline)) return
 
-  const pauseDuration = getCurrentTime(timeline) - timeline._pauseTime!
+  const pauseDuration = getContextTime(timeline) - timeline._pauseTime!
   // shift startTime so it's like it was never paused
   timeline._startTime = timeline._startTime! + pauseDuration
   timeline._pauseTime = null
@@ -111,7 +111,7 @@ const resume = (timeline: Timeline) => {
 const start = (timeline: Timeline) => {
   if (!isStopped(timeline)) return
 
-  const currentTime = getCurrentTime(timeline)
+  const currentTime = getContextTime(timeline)
 
   timeline._startTime = currentTime
   timeline._timeEvents.forEach((timeEvent) => schedule(timeEvent.time + currentTime, { ...timeEvent }, timeline))
@@ -124,7 +124,7 @@ export const play = (timeline: Timeline) => {
   resume(timeline)
   start(timeline)
   timeline.dispatch.onPlay()
-  timeline.ticker.start(() => update(getCurrentTime(timeline), timeline))
+  timeline.ticker.start(() => update(getContextTime(timeline), timeline))
 }
 
 export const stop = (timeline: Timeline) => {
@@ -140,7 +140,7 @@ export const stop = (timeline: Timeline) => {
 export const pause = (timeline: Timeline) => {
   if (isPaused(timeline)) return
 
-  timeline._pauseTime = getCurrentTime(timeline)
+  timeline._pauseTime = getContextTime(timeline)
   timeline.ticker.stop()
   timeline.dispatch.onPause()
 }
@@ -186,7 +186,6 @@ const execute = (timeEvent: TimeEvent, timeline: Timeline) => {
     timeline.dispatch.onEvent(timeEvent)
     timeEvent.onEvent(timeEvent)
   } else {
-    console.log(timeline.context.currentTime, timeEvent._latestTime)
     timeline.dispatch.onEventExpire(timeEvent)
     timeEvent.onExpire(timeEvent)
   }

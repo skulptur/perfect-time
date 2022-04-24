@@ -39,6 +39,7 @@ export const removeEvent = (event: TimeEvent, queue: Queue) => {
 // change the event time and update index
 export const moveTimeEvent = (time: number, timeEvent: TimeEvent, queue: Queue) => {
   timeEvent.time = time
+  updateEarlyLateDates(timeEvent)
   isQueued(timeEvent, queue) && updateIndex(timeEvent, queue)
 }
 

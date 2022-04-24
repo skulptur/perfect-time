@@ -1,24 +1,29 @@
-// clocks
+// timeline
 export {
   createTimeline,
-  Timeline,
-  TimelineOptions,
-  TimelineContext,
   play,
   pause,
   stop,
   createEvent,
-  getCurrentTime,
+  getContextTime,
   timeStretch,
   repeat,
   getScheduledEvents,
+  getElapsedTime,
 } from './lib/timeline'
+export type {  TimelineContext, TimelineOptions, Timeline} from './lib/timeline'
 export { limit } from './lib/queue'
-export { createMusicTimeline, MusicTimeline, MusicTimelineOptions } from './lib/musicTimeline'
-export { TimeEvent, EventCallback } from './lib/timeEvent'
+export type { TimeEvent, EventCallback } from './lib/timeEvent'
+
+// music timeline
+export { createMusicTimeline } from './lib/musicTimeline'
+export type { MusicTimeline, MusicTimelineOptions} from './lib/musicTimeline'
+
+// pubSub
+// export { createTimelinePubSub } from './lib/pubSub'
 
 // tickers
-export { Ticker } from './types'
+export type { Ticker } from './types'
 export { createScriptProcessorTicker } from './lib/tickers/scriptProcessorTicker'
 export { createCallbackTicker } from './lib/tickers/callbackTicker'
 export { createSetIntervalTicker } from './lib/tickers/setIntervalTicker'

@@ -6,7 +6,7 @@ import { Routes } from './components/Routes'
 import { Hotkeys } from './components/Hotkeys'
 import { Spotlight } from './components/Spotlight'
 
-export const Global = (): JSX.Element => {
+export const App = (): JSX.Element => {
   return (
     <MantineProvider theme={{ colorScheme: 'dark', focusRing: 'never' }}>
       <NotificationsProvider>

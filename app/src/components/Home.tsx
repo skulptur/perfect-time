@@ -1,18 +1,6 @@
-import {
-  createTimeline,
-  //   Timeline,
-  //   TimelineOptions,
-  //   TimelineContext,
-  pause,
-  play,
-  stop,
-  createEvent,
-  //   getCurrentTime,
-  //   timeStretch,
-  //   repeat,
-  //   getScheduledEvents,
-  createCallbackTicker,
-} from './'
+import { Box, Text } from '@mantine/core'
+import { useEffect } from 'react'
+import { createTimeline, createCallbackTicker, play, pause, stop, createEvent, getElapsedTime } from '../../../'
 
 const test = () => {
   const logs: Array<string> = []
@@ -29,7 +17,7 @@ const test = () => {
   const advance = (times: number) =>
     Array.from(Array(times)).forEach(() => {
       next()
-      logs.push(`currentTime ${context.currentTime}`)
+      logs.push(`context.currentTime ${context.currentTime}; timelime elapsed time ${getElapsedTime(timeline)}`)
     })
 
   const timeline = createTimeline({
@@ -41,7 +29,10 @@ const test = () => {
     onStop: () => logs.push('onStop'),
     onPause: () => logs.push('onPause'),
     onEvent: () => logs.push('onTimeEvent'),
-    onEventExpire: () => logs.push(`onTimeEventExpired`),
+    onEventExpire: (timeEvent) =>
+      logs.push(
+        `onTimeEventExpired, event.time ${timeEvent.time}, event._latestTime ${timeEvent._latestTime}, currentTime: ${timeline.context.currentTime}`
+      ),
     onCreateEvent: () => logs.push('onCreateEvent'),
     onSchedule: () => logs.push('onSchedule'),
   })
@@ -60,25 +51,22 @@ const test = () => {
   return logs
 }
 
-describe('end to end timeline integration', () => {
-  it('', () => {
-    expect(test()).toEqual([
-      'onCreateEvent',
-      'onSchedule',
-      'onStart',
-      'onPlay',
-      'onTimeEvent',
-      'onSchedule',
-      'currentTime 1',
-      'onPause',
-      'currentTime 2',
-      'onResume',
-      'onPlay',
-      'onTimeEvent',
-      'onSchedule',
-      'currentTime 3',
-      'onStop',
-      'currentTime 4',
-    ])
-  })
-})
+export type HomeProps = {}
+
+export const Home = (props: HomeProps): JSX.Element => {
+  useEffect(() => {
+    test().forEach((l) => console.log(l))
+  }, [])
+
+  return (
+    <Box
+      sx={(theme) => ({
+        backgroundColor: theme.colors.dark[6],
+        width: '100vw',
+        height: '100vh',
+      })}
+    >
+      <Text color='gray'>Home</Text>
+    </Box>
+  )
+}
