@@ -1,12 +1,9 @@
-import React from 'react'
-import { useHotkeys } from '@mantine/hooks';
+import { useHotkeys } from '@mantine/hooks'
 
 export type HotkeysProps = {}
 
 export const Hotkeys = (props: HotkeysProps): JSX.Element | null => {
-    useHotkeys([
-        ['l', () => console.log('logging')],
-      ]);
+  useHotkeys([['l', () => console.log('logging')]])
 
-    return null
+  return null
 }

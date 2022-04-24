@@ -1,6 +1,7 @@
-import { Box, Text } from '@mantine/core'
+import { Box, Text, Button } from '@mantine/core'
 import { useEffect } from 'react'
 import { createTimeline, createCallbackTicker, play, pause, stop, createEvent, getElapsedTime } from '../../../'
+import { Blink, useBlink } from './lib/Blink'
 
 const test = () => {
   const logs: Array<string> = []
@@ -54,6 +55,7 @@ const test = () => {
 export type HomeProps = {}
 
 export const Home = (props: HomeProps): JSX.Element => {
+  const { blink, blinkProps } = useBlink()
   useEffect(() => {
     test().forEach((l) => console.log(l))
   }, [])
@@ -67,6 +69,8 @@ export const Home = (props: HomeProps): JSX.Element => {
       })}
     >
       <Text color='gray'>Home</Text>
+      <Button onClick={blink}>Blink</Button>
+      <Blink {...blinkProps} width='100px' height='100px' background='white' />
     </Box>
   )
 }
