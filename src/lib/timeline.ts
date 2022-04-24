@@ -4,8 +4,6 @@ import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
 import { noop } from './utils/noop'
 
-export type Tolerance = { early: number; late: number }
-
 const defaultOptions: TimelineOptions = {
   ticker: createNoopTicker(),
   context: {
@@ -102,7 +100,6 @@ const resume = (timeline: Timeline) => {
   // shift startTime so it's like it was never paused
   timeline._startTime = timeline._startTime! + pauseDuration
   timeline._pauseTime = null
-  console.log('pause duration', pauseDuration)
   // shift all queued events times
   timeline._playbackQueue._events.forEach((timeEvent) => {
     moveTimeEvent(timeEvent.time + pauseDuration, timeEvent, timeline._playbackQueue)
