@@ -1,64 +1,36 @@
 import { Box, Text, Button } from '@mantine/core'
-import { useEffect } from 'react'
-import { createTimeline, createCallbackTicker, play, pause, stop, createEvent, getElapsedTime } from '../../../'
+import { useRef } from 'react'
+import { createTimeline, createSetIntervalTicker, play, createEvent } from '../../../'
 import { Blink, useBlink } from './lib/Blink'
-
-const test = () => {
-  const logs: Array<string> = []
-  const [ticker, tick] = createCallbackTicker()
-  const context = {
-    currentTime: 0,
-  }
-
-  const next = () => {
-    context.currentTime++
-    tick()
-  }
-
-  const advance = (times: number) =>
-    Array.from(Array(times)).forEach(() => {
-      next()
-      logs.push(`context.currentTime ${context.currentTime}; timelime elapsed time ${getElapsedTime(timeline)}`)
-    })
-
-  const timeline = createTimeline({
-    context,
-    ticker,
-    onStart: () => logs.push('onStart'),
-    onResume: () => logs.push('onResume'),
-    onPlay: () => logs.push('onPlay'),
-    onStop: () => logs.push('onStop'),
-    onPause: () => logs.push('onPause'),
-    onEvent: () => logs.push('onTimeEvent'),
-    onEventExpire: (timeEvent) =>
-      logs.push(
-        `onTimeEventExpired, event.time ${timeEvent.time}, event._latestTime ${timeEvent._latestTime}, currentTime: ${timeline.context.currentTime}`
-      ),
-    onCreateEvent: () => logs.push('onCreateEvent'),
-    onSchedule: () => logs.push('onSchedule'),
-  })
-
-  createEvent(1, 1, 10, () => {}, timeline)
-
-  play(timeline)
-  advance(1)
-  pause(timeline)
-  advance(1)
-  play(timeline)
-  advance(1)
-  stop(timeline)
-  advance(1)
-
-  return logs
-}
+import { resumeContext, isContextSuspended } from 'audio-fns'
 
 export type HomeProps = {}
 
 export const Home = (props: HomeProps): JSX.Element => {
   const { blink, blinkProps } = useBlink()
-  useEffect(() => {
-    test().forEach((l) => console.log(l))
-  }, [])
+  const audioContext = useRef(new AudioContext())
+
+  const playTimeline = () => {
+    resumeContext(audioContext.current).then((context) => {
+      const timeline = createTimeline({
+        context,
+        ticker: createSetIntervalTicker(30),
+      })
+
+      createEvent(
+        1,
+        1,
+        Infinity,
+        (event) => {
+          console.log(event.count)
+          blink()
+        },
+        timeline
+      )
+
+      play(timeline)
+    })
+  }
 
   return (
     <Box
@@ -69,7 +41,7 @@ export const Home = (props: HomeProps): JSX.Element => {
       })}
     >
       <Text color='gray'>Home</Text>
-      <Button onClick={blink}>Blink</Button>
+      <Button onClick={playTimeline}>Play</Button>
       <Blink {...blinkProps} width='100px' height='100px' background='white' />
     </Box>
   )

@@ -1,4 +1,4 @@
-import { createTimeline, createScriptProcessorTicker, play, createEvent, limit } from '../../src'
+import { createTimeline, createScriptProcessorTicker, play, createEvent } from '../../src'
 
 export const scriptProcessor = (context: AudioContext) => {
   const timeline = createTimeline({
