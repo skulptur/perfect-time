@@ -2,6 +2,7 @@ import { createTimeEvent, EventCallback, hasInterval, TimeEvent, updateEarlyLate
 import { createQueue, Queue, clear, removeEvent, updateIndex, isQueued, moveTimeEvent } from './queue'
 import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
+import { noop } from './utils/noop'
 
 export type Tolerance = { early: number; late: number }
 
@@ -10,6 +11,15 @@ const defaultOptions: TimelineOptions = {
   context: {
     currentTime: 0,
   },
+  onStart: noop,
+  onResume: noop,
+  onPlay: noop,
+  onStop: noop,
+  onPause: noop,
+  onEvent: noop,
+  onEventExpire: noop,
+  onCreateEvent: noop,
+  onSchedule: noop,
 }
 
 export type TimelineContext = {
@@ -19,11 +29,24 @@ export type TimelineContext = {
 export type TimelineOptions = {
   ticker: Ticker
   context: TimelineContext
+} & TimelineDispatchers
+
+export type TimelineDispatchers = {
+  onStart: () => void
+  onResume: () => void
+  onPlay: () => void
+  onStop: () => void
+  onPause: () => void
+  onEvent: (timeEvent: TimeEvent) => void
+  onEventExpire: (timeEvent: TimeEvent) => void
+  onCreateEvent: (timeEvent: TimeEvent) => void
+  onSchedule: () => void
 }
 
 export type Timeline = {
   context: TimelineContext
   ticker: Ticker
+  dispatch: TimelineDispatchers
   _timeEvents: Array<TimeEvent>
   _playbackQueue: Queue
   _startTime: number | null
@@ -34,6 +57,17 @@ export const createTimeline = (options: Partial<TimelineOptions> = {}): Timeline
   return {
     ticker: options.ticker || defaultOptions.ticker,
     context: options.context || defaultOptions.context,
+    dispatch: {
+      onStart: options.onStart || noop,
+      onResume: options.onResume || noop,
+      onPlay: options.onPlay || noop,
+      onStop: options.onStop || noop,
+      onPause: options.onPause || noop,
+      onEvent: options.onEvent || noop,
+      onEventExpire: options.onEventExpire || noop,
+      onCreateEvent: options.onCreateEvent || noop,
+      onSchedule: options.onSchedule || noop,
+    },
     _timeEvents: [],
     _playbackQueue: createQueue(),
     _startTime: null,
@@ -61,26 +95,30 @@ export const isPlaying = (timeline: Timeline) => {
   return timeline._startTime !== null && timeline._pauseTime === null
 }
 
-export const resume = (timeline: Timeline) => {
+const resume = (timeline: Timeline) => {
   if (!isPaused(timeline)) return
 
   const pauseDuration = getCurrentTime(timeline) - timeline._pauseTime!
   // shift startTime so it's like it was never paused
   timeline._startTime = timeline._startTime! + pauseDuration
   timeline._pauseTime = null
+  console.log('pause duration', pauseDuration)
   // shift all queued events times
   timeline._playbackQueue._events.forEach((timeEvent) => {
     moveTimeEvent(timeEvent.time + pauseDuration, timeEvent, timeline._playbackQueue)
   })
+
+  timeline.dispatch.onResume()
 }
 
-export const start = (timeline: Timeline) => {
+const start = (timeline: Timeline) => {
   if (!isStopped(timeline)) return
 
   const currentTime = getCurrentTime(timeline)
 
   timeline._startTime = currentTime
   timeline._timeEvents.forEach((timeEvent) => schedule(timeEvent.time + currentTime, { ...timeEvent }, timeline))
+  timeline.dispatch.onStart()
 }
 
 export const play = (timeline: Timeline) => {
@@ -88,7 +126,7 @@ export const play = (timeline: Timeline) => {
 
   resume(timeline)
   start(timeline)
-
+  timeline.dispatch.onPlay()
   timeline.ticker.start(() => update(getCurrentTime(timeline), timeline))
 }
 
@@ -99,6 +137,7 @@ export const stop = (timeline: Timeline) => {
   timeline._pauseTime = null
   clear(timeline._playbackQueue)
   timeline.ticker.stop()
+  timeline.dispatch.onStop()
 }
 
 export const pause = (timeline: Timeline) => {
@@ -106,6 +145,7 @@ export const pause = (timeline: Timeline) => {
 
   timeline._pauseTime = getCurrentTime(timeline)
   timeline.ticker.stop()
+  timeline.dispatch.onPause()
 }
 
 // Stretches `time` and `repeat` of all scheduled `events` by `ratio`, keeping
@@ -145,14 +185,20 @@ const update = (currentTime: number, timeline: Timeline) => {
 const execute = (timeEvent: TimeEvent, timeline: Timeline) => {
   removeEvent(timeEvent, timeline._playbackQueue)
 
-  const callback = timeline.context.currentTime < timeEvent._latestTime! ? timeEvent.onEvent : timeEvent.onExpire
-  callback(timeEvent)
+  if (timeline.context.currentTime < timeEvent._latestTime!) {
+    timeline.dispatch.onEvent(timeEvent)
+    timeEvent.onEvent(timeEvent)
+  } else {
+    console.log(timeline.context.currentTime, timeEvent._latestTime)
+    timeline.dispatch.onEventExpire(timeEvent)
+    timeEvent.onExpire(timeEvent)
+  }
 
   timeEvent.count++
 
   // In the case `schedule` is called inside `onEvent`, we need to avoid
   // overwriting with yet another `schedule`.
-  if (!isQueued(timeEvent, timeline._playbackQueue) && hasInterval(timeEvent)) {
+  if (hasInterval(timeEvent) && !isQueued(timeEvent, timeline._playbackQueue)) {
     schedule(timeEvent.time + timeEvent.interval!, timeEvent, timeline)
   }
 }
@@ -165,6 +211,7 @@ export const schedule = (time: number, timeEvent: TimeEvent, timeline: Timeline)
 
   timeEvent.time = time
   updateEarlyLateDates(timeEvent)
+  timeline.dispatch.onSchedule()
 
   timeline.context.currentTime >= timeEvent._earliestTime!
     ? execute(timeEvent, timeline)
@@ -193,6 +240,7 @@ export const createEvent = (
 ) => {
   const timeEvent = createTimeEvent(time, interval, limit, callback)
   timeline._timeEvents.push(timeEvent)
+  timeline.dispatch.onCreateEvent(timeEvent)
   return timeEvent
 }
 

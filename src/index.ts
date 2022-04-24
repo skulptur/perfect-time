@@ -5,6 +5,7 @@ export {
   TimelineOptions,
   TimelineContext,
   play,
+  pause,
   stop,
   createEvent,
   getCurrentTime,
