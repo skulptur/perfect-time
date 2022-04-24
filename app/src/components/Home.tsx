@@ -2,7 +2,7 @@ import { Box, Text, Button } from '@mantine/core'
 import { useRef } from 'react'
 import { createTimeline, createSetIntervalTicker, play, createEvent } from '../../../'
 import { Blink, useBlink } from './lib/Blink'
-import { resumeContext, isContextSuspended } from 'audio-fns'
+import { resumeContext } from 'audio-fns'
 
 export type HomeProps = {}
 
