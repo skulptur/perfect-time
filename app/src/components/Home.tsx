@@ -2,6 +2,7 @@ import { Box, Text, Button } from '@mantine/core'
 import { useRef } from 'react'
 import { createTimeline, createSetIntervalTicker, play, createEvent } from '../../../'
 import { Blink, useBlink } from './lib/Blink'
+import { Sequencer } from './lib/Sequencer/Sequencer'
 import { resumeContext } from 'audio-fns'
 
 export type HomeProps = {}
@@ -43,6 +44,7 @@ export const Home = (props: HomeProps): JSX.Element => {
       <Text color='gray'>Home</Text>
       <Button onClick={playTimeline}>Play</Button>
       <Blink {...blinkProps} width='100px' height='100px' background='white' />
+      <Sequencer />
     </Box>
   )
 }
