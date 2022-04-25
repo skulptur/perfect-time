@@ -18,8 +18,8 @@ resumeContext(new AudioContext()).then((context) => {
   console.log('- manual')
   example.manual()
 
-  // console.log('- interval')
-  // example.interval(context)
+  console.log('- interval')
+  example.interval(context)
 
   // console.log('- scriptProcessor')
   // example.scriptProcessor(context)

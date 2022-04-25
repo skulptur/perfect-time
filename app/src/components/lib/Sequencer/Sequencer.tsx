@@ -1,7 +1,7 @@
 import { ScrollArea, Switch, ActionIcon, Group, NumberInput } from '@mantine/core'
 import { PlayerPlay, PlayerStop } from 'tabler-icons-react'
 import { resumeContext } from 'audio-fns'
-import { createTimeline, createScriptProcessorTicker } from '../../../../../'
+import { createTimeline, createSetIntervalTicker, createEvent, play, getContextTime } from '../../../../../'
 import { useState } from 'react'
 import { SequenceViewer } from './SequenceViewer'
 import { Container } from './Container'
@@ -15,12 +15,19 @@ const audioContext = new AudioContext()
 resumeContext(audioContext).then((context) => {
   const timeline = createTimeline({
     context,
-    ticker: createScriptProcessorTicker(audioContext),
+    ticker: createSetIntervalTicker(30),
   })
 
-  parts.map((part) => {
-    part.channels.map((steps) => {})
+  parts.forEach((part) => {
+    part.channels.forEach((steps) => {
+      steps.forEach((step, index) => {
+        createEvent(index, null, 0, () => console.log('triggered'), timeline)
+      })
+    })
   })
+
+  play(timeline)
+  console.log(timeline._playbackQueue)
 })
 
 // TODO: would be nice to add a marker track with dots for 8, 16 and 32 bars

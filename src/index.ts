@@ -15,6 +15,7 @@ export type {  TimelineContext, TimelineOptions, Timeline} from './lib/timeline'
 export { limit } from './lib/queue'
 export type { TimeEvent, EventCallback } from './lib/timeEvent'
 
+
 // music timeline
 export { createMusicTimeline } from './lib/musicTimeline'
 export type { MusicTimeline, MusicTimelineOptions} from './lib/musicTimeline'
