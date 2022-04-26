@@ -29,3 +29,5 @@ export { createScriptProcessorTicker } from './lib/tickers/scriptProcessorTicker
 export { createCallbackTicker } from './lib/tickers/callbackTicker'
 export { createSetIntervalTicker } from './lib/tickers/setIntervalTicker'
 export { createNoopTicker } from './lib/tickers/noopTicker'
+export { createWorkerSetIntervalTicker } from './lib/tickers/workerSetIntervalTicker'
+

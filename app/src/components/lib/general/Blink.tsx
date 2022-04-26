@@ -43,7 +43,7 @@ export const Blink = ({
   borderRadius = '100%',
   background = 'lime',
   indicatorRef,
-}: BlinkProps): JSX.Element | null => {
+}: BlinkProps): JSX.Element => {
   return (
     <div
       ref={indicatorRef}

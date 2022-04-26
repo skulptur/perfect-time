@@ -11,16 +11,24 @@ const example = {
   scriptProcessor,
 }
 
-resumeContext(new AudioContext()).then((context) => {
-  // console.log('- timeStretch')
-  // example.timeStretch(context)
+let isRunning = false
+const run = () => {
+  if (isRunning) return
+  isRunning = true
+  console.log('run')
+  resumeContext(new AudioContext()).then((context) => {
+    // console.log('- timeStretch')
+    // example.timeStretch(context)
 
-  console.log('- manual')
-  example.manual()
+    console.log('- manual')
+    example.manual()
 
-  console.log('- interval')
-  example.interval(context)
+    console.log('- interval')
+    example.interval(context)
 
-  // console.log('- scriptProcessor')
-  // example.scriptProcessor(context)
-})
+    console.log('- scriptProcessor')
+    example.scriptProcessor(context)
+  })
+}
+
+document.addEventListener('click', () => run())
