@@ -1,50 +1,39 @@
-import { Box, Text, Button } from '@mantine/core'
+import { Text, Button } from '@mantine/core'
 import { useRef } from 'react'
-import { createTimeline, createSetIntervalTicker, play, createEvent } from '../../../'
 import { Blink, useBlink } from './lib/general/Blink'
-import { Sequencer } from './lib/Sequencer/Sequencer'
+// import { Sequencer } from './lib/Sequencer/Sequencer'
 import { resumeContext } from 'audio-fns'
+import { sequencer } from './sequencer'
+import { times, getItemCyclic } from 'data-fns'
 
 export type HomeProps = {}
 
+let isRunning = false
+
 export const Home = (props: HomeProps): JSX.Element => {
-  const { blink, blinkProps } = useBlink()
-  const audioContext = useRef(new AudioContext())
+  const blinks = times(3, useBlink)
 
-  const playTimeline = () => {
-    resumeContext(audioContext.current).then((context) => {
-      const timeline = createTimeline({
-        context,
-        ticker: createSetIntervalTicker(30),
-      })
+  // const audioContext = useRef(new AudioContext())
 
-      createEvent(
-        1,
-        1,
-        Infinity,
-        (event) => {
-          console.log(event.count)
-          blink()
-        },
-        timeline
-      )
-
-      play(timeline)
+  const run = () => {
+    if (isRunning) return
+    isRunning = true
+    console.log('run')
+    resumeContext(new AudioContext()).then((context) => {
+      console.log('- sequencer')
+      sequencer(context, (id) => getItemCyclic(id, blinks).blink())
     })
   }
 
   return (
-    <Box
-      sx={(theme) => ({
-        backgroundColor: theme.colors.dark[6],
-        width: '100vw',
-        height: '100vh',
-      })}
-    >
+    <>
       <Text color='gray'>Home</Text>
-      <Button onClick={playTimeline}>Play</Button>
-      <Blink {...blinkProps} width='100px' height='100px' background='white' />
-      <Sequencer />
-    </Box>
+      <Button onClick={run}>Play</Button>
+      {blinks.map(({ blinkProps }, id) => (
+        <Blink {...blinkProps} key={id} width='50px' height='50px' background='white' />
+      ))}
+
+      {/* <Sequencer />  */}
+    </>
   )
 }

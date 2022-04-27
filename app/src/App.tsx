@@ -1,6 +1,6 @@
 import { NotificationsProvider } from '@mantine/notifications'
 import { ModalsProvider } from '@mantine/modals'
-import { MantineProvider } from '@mantine/core'
+import { MantineProvider, Box } from '@mantine/core'
 import { BrowserRouter } from 'react-router-dom'
 import { Routes } from './components/Routes'
 import { Hotkeys } from './components/Hotkeys'
@@ -14,7 +14,15 @@ export const App = (): JSX.Element => {
           <BrowserRouter>
             <Spotlight>
               <Hotkeys />
-              <Routes />
+              <Box
+                sx={(theme) => ({
+                  backgroundColor: theme.colors.dark[6],
+                  width: '100vw',
+                  height: '100vh',
+                })}
+              >
+                <Routes />
+              </Box>
             </Spotlight>
           </BrowserRouter>
         </ModalsProvider>

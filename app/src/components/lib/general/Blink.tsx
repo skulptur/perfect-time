@@ -1,13 +1,25 @@
 import { useRef } from 'react'
 
+const sheet = document.head.appendChild(document.createElement('style')).sheet!
+function createCSSSelector(className: string, declaration: string) {
+  sheet.insertRule(`${className} { ${declaration} }`, sheet.cssRules.length)
+}
+
+createCSSSelector('.unique_generated__blink', ' opacity: 0; transform: scale(0); transition: all 300ms ease-out;')
+createCSSSelector('.unique_generated__blink-on', 'opacity: 1; transform: scale(1); transition: all 0ms')
+
 export const useBlink = () => {
   const indicatorRef = useRef<HTMLDivElement>(null)
   const blinkOff = () => {
-    indicatorRef.current && indicatorRef.current.classList.remove('unique_generated__blink-on')
+    requestAnimationFrame(() => {
+      indicatorRef.current && indicatorRef.current.classList.remove('unique_generated__blink-on')
+    })
   }
 
   const blinkOn = () => {
-    indicatorRef.current && indicatorRef.current.classList.add('unique_generated__blink-on')
+    requestAnimationFrame(
+      () => indicatorRef.current && indicatorRef.current.classList.add('unique_generated__blink-on')
+    )
 
     window.setTimeout(blinkOff, 100)
   }
@@ -27,15 +39,6 @@ export type BlinkProps = {
   background?: string
   indicatorRef: React.RefObject<HTMLDivElement>
 }
-
-const sheet = document.head.appendChild(document.createElement('style')).sheet!
-function createCSSSelector(className: string, declaration: string) {
-  sheet.insertRule(`${className} { ${declaration} }`, sheet.cssRules.length)
-}
-
-createCSSSelector('.unique_generated__blink', ' opacity: 0; transition: opacity 500ms ease-out;')
-
-createCSSSelector('.unique_generated__blink-on', 'opacity: 1; transition: opacity 0ms')
 
 export const Blink = ({
   width = '100%',
