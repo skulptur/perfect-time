@@ -1,7 +1,7 @@
 import { Text, Button } from '@mantine/core'
 import { useRef } from 'react'
 import { Blink, useBlink } from './lib/general/Blink'
-// import { Sequencer } from './lib/Sequencer/Sequencer'
+import { Sequencer } from './lib/Sequencer/Sequencer'
 import { resumeContext } from 'audio-fns'
 import { sequencer } from './sequencer'
 import { times, getItemCyclic } from 'data-fns'
@@ -33,7 +33,7 @@ export const Home = (props: HomeProps): JSX.Element => {
         <Blink {...blinkProps} key={id} width='50px' height='50px' background='white' />
       ))}
 
-      {/* <Sequencer />  */}
+      <Sequencer />
     </>
   )
 }
