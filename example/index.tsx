@@ -1,14 +1,12 @@
 import { manual } from './src/manual'
 import { timeStretch } from './src/timeStretch'
 import { interval } from './src/interval'
-import { scriptProcessor } from './src/scriptProcessor'
 import { resumeContext } from 'audio-fns'
 
 const example = {
   timeStretch,
   manual,
   interval,
-  scriptProcessor,
 }
 
 let isRunning = false

@@ -8,14 +8,16 @@ const workerFunction = (fn: () => void) => {
 export const createWorkerSetIntervalTicker = (time: number): Ticker => {
   const fn = workerFunction(() => {
     let intervalId: any = null
-
+    // @ts-ignore
     self.onmessage = (msg) => {
       if (!msg.data && intervalId !== null) {
         clearInterval(intervalId)
         intervalId = null
         return
       }
+      
       intervalId = setInterval(() => {
+        // @ts-ignore
         self.postMessage(undefined)
       }, msg.data)
     }

@@ -25,7 +25,6 @@ export type { MusicTimeline, MusicTimelineOptions} from './lib/musicTimeline'
 
 // tickers
 export type { Ticker } from './types'
-export { createScriptProcessorTicker } from './lib/tickers/scriptProcessorTicker'
 export { createCallbackTicker } from './lib/tickers/callbackTicker'
 export { createSetIntervalTicker } from './lib/tickers/setIntervalTicker'
 export { createNoopTicker } from './lib/tickers/noopTicker'
