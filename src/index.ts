@@ -21,7 +21,7 @@ export { createMusicTimeline } from './lib/musicTimeline'
 export type { MusicTimeline, MusicTimelineOptions} from './lib/musicTimeline'
 
 // pubSub
-// export { createTimelinePubSub } from './lib/pubSub'
+export { createTimelinePubSub } from './lib/pubSub'
 
 // tickers
 export type { Ticker } from './types'

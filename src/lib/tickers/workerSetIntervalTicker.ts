@@ -32,8 +32,8 @@ export const createWorkerSetIntervalTicker = (time: number): Ticker => {
       fn.postMessage(false)
     },
     dispose: () => {
-      // TODO: dispose worker?
       fn.postMessage(false)
+      fn.terminate()
     },
   }
 }
