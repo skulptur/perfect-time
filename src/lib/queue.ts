@@ -5,6 +5,12 @@ export type Queue = {
   timeEvents: Array<TimeEvent>
 }
 
+// TODO: make the queue also have callbacks
+// export type QueueCallbacks = {
+//   onInsertEvent: (timeEvent: TimeEvent) => void
+//   onRemoveEvent: (timeEvent: TimeEvent) => void
+// }
+
 export const createQueue = (timeEvents: Array<TimeEvent> = []): Queue => {
   return {
     timeEvents,
