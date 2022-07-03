@@ -197,11 +197,14 @@ const execute = (timeEvent: TimeEvent, player: Player) => {
   }
 }
 
-// Schedules the event to be ran before `time`.
+// Schedules the event to run before `time`.
 // If the time is within the event tolerance, we handle the event immediately.
 // If the event was already scheduled at a different time, it is rescheduled.
 export const schedule = (time: number, timeEvent: TimeEvent, player: Player) => {
-  if (timeEvent._limit <= timeEvent.count) return removeEvent(timeEvent, player._playbackQueue)
+  if (timeEvent._limit <= timeEvent.count) {
+    removeEvent(timeEvent, player._playbackQueue)
+    return false
+  }
 
   timeEvent.time = time
   updateEarlyLateDates(timeEvent)
@@ -210,6 +213,8 @@ export const schedule = (time: number, timeEvent: TimeEvent, player: Player) => 
   player.context.currentTime >= timeEvent._earliestTime!
     ? execute(timeEvent, player)
     : updateIndex(timeEvent, player._playbackQueue)
+
+  return true
 }
 
 // Sets the event to repeat every `time` time, for `limit` times

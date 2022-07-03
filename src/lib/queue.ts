@@ -1,4 +1,4 @@
-import {createTimeEvent, EventCallback, TimeEvent, updateEarlyLateDates} from './timeEvent'
+import { TimeEvent, updateEarlyLateDates } from './timeEvent'
 import { indexByTime } from './utils/indexByTime'
 
 export type Queue = {
@@ -25,18 +25,18 @@ export const updateIndex = (timeEvent: TimeEvent, queue: Queue) => {
   insertEvent(timeEvent, queue)
 }
 
-// Creates an event and insert it to the queue
-export const addEvent = (
-    time: number,
-    interval: number | null,
-    limit: number,
-    callback: EventCallback,
-    queue: Queue
-) => {
-  const timeEvent = createTimeEvent(time, interval, limit, callback)
-  queue.timeEvents.push(timeEvent)
-  return timeEvent
-}
+// // Creates an event and insert it to the queue
+// export const addEvent = (
+//     time: number,
+//     interval: number | null,
+//     limit: number,
+//     callback: EventCallback,
+//     queue: Queue
+// ) => {
+//   const timeEvent = createTimeEvent(time, interval, limit, callback)
+//   queue.timeEvents.push(timeEvent)
+//   return timeEvent
+// }
 
 // Inserts an existing event in the queue
 export const insertEvent = (timeEvent: TimeEvent, queue: Queue) => {

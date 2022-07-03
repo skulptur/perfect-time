@@ -26,7 +26,6 @@ export {
     clear,
     isQueued,
     updateIndex,
-    addEvent,
     insertEvent,
     removeEvent,
     moveTimeEvent,
@@ -35,8 +34,8 @@ export {
 } from './lib/queue'
 export type {Queue} from './lib/queue'
 
+export { createTimeEvent, updateEarlyLateDates, hasInterval } from './lib/timeEvent'
 export type {TimeEvent, EventCallback} from './lib/timeEvent'
-
 
 // music player
 export {createMusicalPlayer} from './lib/musicalPlayer'

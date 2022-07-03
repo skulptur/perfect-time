@@ -1,4 +1,4 @@
-import { createPlayer, createCallbackTicker, play, stop, addEvent, createQueue } from '../../src'
+import { createPlayer, createCallbackTicker, play, stop, insertEvent, createQueue, createTimeEvent } from '../../src'
 import { times } from 'data-fns'
 
 export const manual = () => {
@@ -18,7 +18,8 @@ export const manual = () => {
   })
 
   const queue = createQueue()
-  addEvent(1, 1, 10, (event) => console.log('callback tick', event.count), queue)
+  const event = createTimeEvent(1, 1, 10, (event) => console.log('callback tick', event.count))
+  insertEvent(event, queue)
 
   play(queue, player)
   // notice we tick 20 but only 10 events log :)
