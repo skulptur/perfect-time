@@ -19,7 +19,7 @@ export {
 export type {
     PlayerContext,
     PlayerOptions,
-    PlayerDispatchers, Player
+    PlayerCallbacks, Player
 } from './lib/player'
 export {
     createQueue,

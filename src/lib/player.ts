@@ -26,9 +26,9 @@ export type PlayerContext = {
 export type PlayerOptions = {
   ticker: Ticker
   context: PlayerContext
-} & PlayerDispatchers
+} & PlayerCallbacks
 
-export type PlayerDispatchers = {
+export type PlayerCallbacks = {
   onStart: () => void
   onResume: () => void
   onPlay: () => void
@@ -42,7 +42,7 @@ export type PlayerDispatchers = {
 export type Player = {
   context: PlayerContext
   ticker: Ticker
-  dispatch: PlayerDispatchers
+  _callbacks: PlayerCallbacks
   _playbackQueue: Queue
   _startTime: number | null
   _pauseTime: number | null
@@ -52,7 +52,7 @@ export const createPlayer = (options: Partial<PlayerOptions> = {}): Player => {
   return {
     ticker: options.ticker || defaultOptions.ticker,
     context: options.context || defaultOptions.context,
-    dispatch: {
+    _callbacks: {
       onStart: options.onStart || noop,
       onResume: options.onResume || noop,
       onPlay: options.onPlay || noop,
@@ -100,7 +100,7 @@ export const resume = (player: Player) => {
     moveTimeEvent(timeEvent.time + pauseDuration, timeEvent, player._playbackQueue)
   })
 
-  player.dispatch.onResume()
+  player._callbacks.onResume()
 }
 
 export const start = (queue: Queue, player: Player) => {
@@ -113,7 +113,7 @@ export const start = (queue: Queue, player: Player) => {
   // Alternatively we could use the provided queue itself,
   // but it has some implications such as time stretching would mutate the original queue.
   queue.timeEvents.forEach((timeEvent) => schedule(timeEvent.time + currentTime, { ...timeEvent }, player))
-  player.dispatch.onStart()
+  player._callbacks.onStart()
 }
 
 export const play = (queue: Queue, player: Player) => {
@@ -121,7 +121,7 @@ export const play = (queue: Queue, player: Player) => {
 
   resume(player)
   start(queue, player)
-  player.dispatch.onPlay()
+  player._callbacks.onPlay()
   player.ticker.start(() => update(getContextTime(player), player))
 }
 
@@ -132,7 +132,7 @@ export const stop = (player: Player) => {
   player._pauseTime = null
   clear(player._playbackQueue)
   player.ticker.stop()
-  player.dispatch.onStop()
+  player._callbacks.onStop()
 }
 
 export const pause = (player: Player) => {
@@ -140,7 +140,7 @@ export const pause = (player: Player) => {
 
   player._pauseTime = getContextTime(player)
   player.ticker.stop()
-  player.dispatch.onPause()
+  player._callbacks.onPause()
 }
 
 // Stretches `time` and `repeat` of all scheduled `events` by `ratio`, keeping
@@ -181,10 +181,10 @@ const execute = (timeEvent: TimeEvent, player: Player) => {
   removeEvent(timeEvent, player._playbackQueue)
 
   if (player.context.currentTime < timeEvent._latestTime!) {
-    player.dispatch.onEvent(timeEvent)
+    player._callbacks.onEvent(timeEvent)
     timeEvent.onEvent(timeEvent)
   } else {
-    player.dispatch.onEventExpire(timeEvent)
+    player._callbacks.onEventExpire(timeEvent)
     timeEvent.onExpire(timeEvent)
   }
 
@@ -208,7 +208,7 @@ export const schedule = (time: number, timeEvent: TimeEvent, player: Player) => 
 
   timeEvent.time = time
   updateEarlyLateDates(timeEvent)
-  player.dispatch.onSchedule()
+  player._callbacks.onSchedule()
 
   player.context.currentTime >= timeEvent._earliestTime!
     ? execute(timeEvent, player)
