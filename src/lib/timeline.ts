@@ -226,7 +226,7 @@ export const repeat = (interval: number, timeEvent: TimeEvent, timeline: Timelin
   return timeEvent
 }
 
-// Creates an event and insert it to the list
+// Creates an event and insert it to the persistent queue
 export const createEvent = (
   time: number,
   interval: number | null,

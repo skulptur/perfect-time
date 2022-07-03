@@ -26,6 +26,7 @@ export const manual = () => {
   stop(timeline)
 
   play(timeline)
-  // notice we tick 20 but only 10 events log :)
+
+  // notice that it does the same thing again because we stopped and started
   times(20, next)
 }
