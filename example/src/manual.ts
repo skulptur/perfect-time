@@ -1,4 +1,4 @@
-import { createTimeline, createCallbackTicker, play, stop, createEvent } from '../../src'
+import { createPlayer, createCallbackTicker, play, stop, addEvent, createQueue } from '../../src'
 import { times } from 'data-fns'
 
 export const manual = () => {
@@ -12,20 +12,21 @@ export const manual = () => {
     tick()
   }
 
-  const timeline = createTimeline({
+  const player = createPlayer({
     context,
     ticker,
   })
 
-  createEvent(1, 1, 10, (event) => console.log('callback tick', event.count), timeline)
+  const queue = createQueue()
+  addEvent(1, 1, 10, (event) => console.log('callback tick', event.count), queue)
 
-  play(timeline)
+  play(queue, player)
   // notice we tick 20 but only 10 events log :)
   times(20, next)
 
-  stop(timeline)
+  stop(player)
 
-  play(timeline)
+  play(queue, player)
 
   // notice that it does the same thing again because we stopped and started
   times(20, next)

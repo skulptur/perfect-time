@@ -1,18 +1,18 @@
-import { createTimeline, createWorkerSetIntervalTicker, play, createEvent } from '../../../../../src'
+import { createPlayer, createWorkerSetIntervalTicker, play, addEvent } from '../../../../../src'
 
 export const sequencer = (context: AudioContext) => {
-  const timeline = createTimeline({
+  const player = createPlayer({
     context,
     ticker: createWorkerSetIntervalTicker(100),
   })
 
-  createEvent(
+  addEvent(
     0,
     0.1,
     Infinity,
     (event) => console.log('script processor', event.count, event.time - context.currentTime),
-    timeline
+    player
   )
 
-  play(timeline)
+  play(player)
 }

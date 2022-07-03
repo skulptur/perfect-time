@@ -30,7 +30,7 @@ const clock = createClock({
   ticker: createSetIntervalTicker(100),
 })
 
-timeline.start()
+player.start()
 
 clock
   .every(1, (event) => {
@@ -71,16 +71,16 @@ const callback = (event) => {
 }
 
 // callback gets called right before context.currentTime reaches 10 seconds
-timeline.atTime(10, callback)
+player.atTime(10, callback)
 
 // callback gets called immediately and and repeats every 10 seconds
-timeline.every(10, callback)
+player.every(10, callback)
 
 // callback gets called right before 10 seconds elapsed
-timeline.setTimeout(10, callback)
+player.setTimeout(10, callback)
 
 // callback gets called right before 10 seconds elapsed and repeats
-timeline.setInterval(10, callback)
+player.setInterval(10, callback)
 ```
 
 **Control Events**
@@ -89,8 +89,8 @@ You can also control the event directly, for example to schedule repetition in t
 
 ```typescript
 // callback called right before context.currentTime reaches 10, and then every second 3 times
-// timeline.atTime returns an event, which we call .repeat on
-timeline.atTime(10, callback).repeat(1, 3)
+// player.atTime returns an event, which we call .repeat on
+player.atTime(10, callback).repeat(1, 3)
 
 // equivalent to the above
 clock
@@ -103,7 +103,7 @@ clock
 
 ```typescript
 // start an oscillator node at context.currentTime = 1
-const event = timeline.every(1, (event) => {
+const event = player.every(1, (event) => {
   oscNode.start(event.time)
 })
 
@@ -114,16 +114,16 @@ event.clear()
 **Change speed of a group of events**
 
 ```typescript
-const eventA = timeline.atTime(1, () => console.log('event A')).repeat(3)
-const eventB = timeline.atTime(2, () => console.log('event B')).repeat(3)
-const eventC = timeline.atTime(3, () => console.log('event C')).repeat(3)
+const eventA = player.atTime(1, () => console.log('event A')).repeat(3)
+const eventB = player.atTime(2, () => console.log('event B')).repeat(3)
+const eventC = player.atTime(3, () => console.log('event C')).repeat(3)
 
 // the speed will be halved immediately for all events
-timeline.timeStretch(0.5)
+player.timeStretch(0.5)
 
 // the speed will be doubled in 9 seconds only for eventA and eventB
-timeline.setTimeout(9, (event) => {
-  timeline.timeStretch(2, event.time, [eventA, eventB])
+player.setTimeout(9, (event) => {
+  player.timeStretch(2, event.time, [eventA, eventB])
 })
 ```
 

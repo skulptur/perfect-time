@@ -1,32 +1,54 @@
-// timeline
+// player
 export {
-  createTimeline,
-  play,
-  pause,
-  stop,
-  createEvent,
-  getContextTime,
-  timeStretch,
-  repeat,
-  getScheduledEvents,
-  getElapsedTime,
-} from './lib/timeline'
-export type {  TimelineContext, TimelineOptions, Timeline} from './lib/timeline'
-export { limit } from './lib/queue'
-export type { TimeEvent, EventCallback } from './lib/timeEvent'
+    createPlayer,
+    getContextTime,
+    getElapsedTime,
+    isStopped,
+    isPaused,
+    isPlaying,
+    resume,
+    start,
+    play,
+    stop,
+    pause,
+    timeStretch,
+    schedule,
+    repeat,
+    getScheduledEvents,
+} from './lib/player'
+export type {
+    PlayerContext,
+    PlayerOptions,
+    PlayerDispatchers, Player
+} from './lib/player'
+export {
+    createQueue,
+    clear,
+    isQueued,
+    updateIndex,
+    addEvent,
+    insertEvent,
+    removeEvent,
+    moveTimeEvent,
+    setTolerance,
+    limit
+} from './lib/queue'
+export type {Queue} from './lib/queue'
+
+export type {TimeEvent, EventCallback} from './lib/timeEvent'
 
 
-// music timeline
-export { createMusicTimeline } from './lib/musicTimeline'
-export type { MusicTimeline, MusicTimelineOptions} from './lib/musicTimeline'
+// music player
+export {createMusicalPlayer} from './lib/musicalPlayer'
+export type {MusicalPlayer, MusicalPlayerOptions} from './lib/musicalPlayer'
 
 // pubSub
-export { createTimelinePubSub } from './lib/pubSub'
+export {createPlayerPubSub} from './lib/pubSub'
 
 // tickers
-export type { Ticker } from './types'
-export { createCallbackTicker } from './lib/tickers/callbackTicker'
-export { createSetIntervalTicker } from './lib/tickers/setIntervalTicker'
-export { createNoopTicker } from './lib/tickers/noopTicker'
-export { createWorkerSetIntervalTicker } from './lib/tickers/workerSetIntervalTicker'
+export type {Ticker} from './types'
+export {createCallbackTicker} from './lib/tickers/callbackTicker'
+export {createSetIntervalTicker} from './lib/tickers/setIntervalTicker'
+export {createNoopTicker} from './lib/tickers/noopTicker'
+export {createWorkerSetIntervalTicker} from './lib/tickers/workerSetIntervalTicker'
 

@@ -1,12 +1,12 @@
 import {
-  createTimeline,
-  //   Timeline,
-  //   TimelineOptions,
-  //   TimelineContext,
+  createPlayer,
+  //   Player,
+  //   PlayerOptions,
+  //   PlayerContext,
   pause,
   play,
   stop,
-  createEvent,
+  addEvent,
   //   getCurrentTime,
   //   timeStretch,
   //   repeat,
@@ -32,7 +32,7 @@ const test = () => {
       logs.push(`currentTime ${context.currentTime}`)
     })
 
-  const timeline = createTimeline({
+  const player = createPlayer({
     context,
     ticker,
     onStart: () => logs.push('onStart'),
@@ -46,21 +46,21 @@ const test = () => {
     onSchedule: () => logs.push('onSchedule'),
   })
 
-  createEvent(1, 1, 10, () => {}, timeline)
+  addEvent(1, 1, 10, () => {}, player)
 
-  play(timeline)
+  play(player)
   advance(1)
-  pause(timeline)
+  pause(player)
   advance(1)
-  play(timeline)
+  play(player)
   advance(1)
-  stop(timeline)
+  stop(player)
   advance(1)
 
   return logs
 }
 
-describe('end to end timeline integration', () => {
+describe('end to end player integration', () => {
   it('', () => {
     expect(test()).toEqual([
       'onCreateEvent',

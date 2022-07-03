@@ -1,6 +1,6 @@
 import { Box, Text, Button } from '@mantine/core'
 import { useRef } from 'react'
-import { createTimeline, createSetIntervalTicker, play, createEvent } from '../../../'
+import { createPlayer, createSetIntervalTicker, play, createEvent } from '../../../'
 import { Blink, useBlink } from './lib/general/Blink'
 import { Sequencer } from './lib/Sequencer/Sequencer'
 import { resumeContext } from 'audio-fns'
@@ -11,9 +11,9 @@ export const Home = (props: HomeProps): JSX.Element => {
   const { blink, blinkProps } = useBlink()
   const audioContext = useRef(new AudioContext())
 
-  const playTimeline = () => {
+  const playPlayer = () => {
     resumeContext(audioContext.current).then((context) => {
-      const timeline = createTimeline({
+      const player = createPlayer({
         context,
         ticker: createSetIntervalTicker(30),
       })
@@ -26,10 +26,10 @@ export const Home = (props: HomeProps): JSX.Element => {
           console.log(event.count)
           blink()
         },
-        timeline
+        player
       )
 
-      play(timeline)
+      play(player)
     })
   }
 
@@ -42,7 +42,7 @@ export const Home = (props: HomeProps): JSX.Element => {
       })}
     >
       <Text color='gray'>Home</Text>
-      <Button onClick={playTimeline}>Play</Button>
+      <Button onClick={playPlayer}>Play</Button>
       <Blink {...blinkProps} width='100px' height='100px' background='white' />
       <Sequencer />
     </Box>

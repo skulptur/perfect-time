@@ -1,9 +1,9 @@
 import { createPubSub, groupByAction } from 'lightcast'
 import { TimeEvent } from './timeEvent'
 
-export type TimelinePubSub = ReturnType<typeof createTimelinePubSub>
+export type PlayerPubSub = ReturnType<typeof createPlayerPubSub>
 
-export const createTimelinePubSub = () => {
+export const createPlayerPubSub = () => {
   const pubSub = {
     onStart: createPubSub<void>(),
     onResume: createPubSub<void>(),
@@ -12,7 +12,6 @@ export const createTimelinePubSub = () => {
     onPause: createPubSub<void>(),
     onEvent: createPubSub<TimeEvent>(),
     onEventExpire: createPubSub<TimeEvent>(),
-    onCreateEvent: createPubSub<TimeEvent>(),
     onSchedule: createPubSub<void>(),
   }
 

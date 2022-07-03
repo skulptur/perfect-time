@@ -1,23 +1,23 @@
-import { TimeEvent, updateEarlyLateDates } from './timeEvent'
+import {createTimeEvent, EventCallback, TimeEvent, updateEarlyLateDates} from './timeEvent'
 import { indexByTime } from './utils/indexByTime'
 
 export type Queue = {
-  _events: Array<TimeEvent>
+  timeEvents: Array<TimeEvent>
 }
 
-export const createQueue = (): Queue => {
+export const createQueue = (timeEvents: Array<TimeEvent> = []): Queue => {
   return {
-    _events: [],
+    timeEvents,
   }
 }
 
 export const clear = (queue: Queue) => {
-  queue._events = []
+  queue.timeEvents = []
 }
 
 // Returns true if `event` is in queue, false otherwise
 export const isQueued = (event: TimeEvent, queue: Queue) => {
-  return queue._events.includes(event)
+  return queue.timeEvents.includes(event)
 }
 
 export const updateIndex = (timeEvent: TimeEvent, queue: Queue) => {
@@ -25,15 +25,28 @@ export const updateIndex = (timeEvent: TimeEvent, queue: Queue) => {
   insertEvent(timeEvent, queue)
 }
 
-// Inserts an event to the list
-export const insertEvent = (timeEvent: TimeEvent, queue: Queue) => {
-  queue._events.splice(indexByTime(timeEvent._earliestTime!, queue._events), 0, timeEvent)
+// Creates an event and insert it to the queue
+export const addEvent = (
+    time: number,
+    interval: number | null,
+    limit: number,
+    callback: EventCallback,
+    queue: Queue
+) => {
+  const timeEvent = createTimeEvent(time, interval, limit, callback)
+  queue.timeEvents.push(timeEvent)
+  return timeEvent
 }
 
-// Removes an event from the list
+// Inserts an existing event in the queue
+export const insertEvent = (timeEvent: TimeEvent, queue: Queue) => {
+  queue.timeEvents.splice(indexByTime(timeEvent._earliestTime!, queue.timeEvents), 0, timeEvent)
+}
+
+// Removes an event from the queue
 export const removeEvent = (event: TimeEvent, queue: Queue) => {
-  const index = queue._events.indexOf(event)
-  if (index !== -1) queue._events.splice(index, 1)
+  const index = queue.timeEvents.indexOf(event)
+  if (index !== -1) queue.timeEvents.splice(index, 1)
 }
 
 // change the event time and update index
