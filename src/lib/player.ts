@@ -153,7 +153,10 @@ export const start = (queue: Queue, player: Player) => {
   // The events get copied over, at least that is the current behavior
   // Alternatively we could use the provided queue itself,
   // but it has some implications such as playing mutates the original queue.
-  queue.timeEvents.forEach((timeEvent) => schedule(timeEvent.time + currentTime, { ...timeEvent }, player))
+  queue.timeEvents.forEach((timeEvent) => {
+    timeEvent.time = timeEvent._originalTime
+    schedule(timeEvent.time + currentTime, timeEvent, player)
+  })
   player._callbacks.onStart()
 }
 

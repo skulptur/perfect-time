@@ -1,6 +1,7 @@
 export type EventCallback = (event: TimeEvent) => void
 
 export type TimeEvent = {
+  _originalTime: number,
   _latestTime: number | null
   _earliestTime: number | null
   _limit: number
@@ -26,6 +27,7 @@ export const createTimeEvent = (
   onEvent: EventCallback
 ): TimeEvent => {
   return {
+    _originalTime: time,
     _latestTime: null,
     _earliestTime: null,
     _limit: limit,
