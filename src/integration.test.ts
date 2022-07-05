@@ -6,12 +6,11 @@ import {
   pause,
   play,
   stop,
-  addEvent,
   //   getCurrentTime,
   //   timeStretch,
   //   repeat,
   //   getScheduledEvents,
-  createCallbackTicker,
+  createCallbackTicker, createQueue, createTimeEvent, insertEvent,
 } from './'
 
 const test = () => {
@@ -32,6 +31,11 @@ const test = () => {
       logs.push(`currentTime ${context.currentTime}`)
     })
 
+  const queue = createQueue()
+  const event = createTimeEvent(1, 1, 10, (event) => {
+    logs.push('onEvent ' + JSON.stringify(event))
+  })
+  insertEvent(event, queue)
   const player = createPlayer({
     context,
     ticker,
@@ -42,17 +46,14 @@ const test = () => {
     onPause: () => logs.push('onPause'),
     onEvent: () => logs.push('onTimeEvent'),
     onEventExpire: () => logs.push(`onTimeEventExpired`),
-    onCreateEvent: () => logs.push('onCreateEvent'),
     onSchedule: () => logs.push('onSchedule'),
   })
 
-  addEvent(1, 1, 10, () => {}, player)
-
-  play(player)
+  play(queue, player)
   advance(1)
   pause(player)
   advance(1)
-  play(player)
+  play(queue, player)
   advance(1)
   stop(player)
   advance(1)
@@ -63,11 +64,11 @@ const test = () => {
 describe('end to end player integration', () => {
   it('', () => {
     expect(test()).toEqual([
-      'onCreateEvent',
       'onSchedule',
       'onStart',
       'onPlay',
       'onTimeEvent',
+      'onEvent {\"_latestTime\":1.1,\"_earliestTime\":0.999,\"_limit\":10,\"toleranceLate\":0.1,\"toleranceEarly\":0.001,\"count\":0,\"interval\":1,\"time\":1}',
       'onSchedule',
       'currentTime 1',
       'onPause',
@@ -75,6 +76,7 @@ describe('end to end player integration', () => {
       'onResume',
       'onPlay',
       'onTimeEvent',
+      'onEvent {\"_latestTime\":3.1,\"_earliestTime\":2.999,\"_limit\":10,\"toleranceLate\":0.1,\"toleranceEarly\":0.001,\"count\":1,\"interval\":1,\"time\":3}',
       'onSchedule',
       'currentTime 3',
       'onStop',
