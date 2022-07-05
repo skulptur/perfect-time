@@ -1,19 +1,34 @@
 import { TimeEvent, updateEarlyLateDates } from './timeEvent'
 import { indexByTime } from './utils/indexByTime'
+import { noop } from "./utils/noop";
 
 export type Queue = {
   timeEvents: Array<TimeEvent>
+  _callbacks: QueueCallbacks
 }
 
-// TODO: make the queue also have callbacks
-// export type QueueCallbacks = {
-//   onInsertEvent: (timeEvent: TimeEvent) => void
-//   onRemoveEvent: (timeEvent: TimeEvent) => void
-// }
+export type QueueCallbacks = {
+  onInsertEvent: (timeEvent: TimeEvent) => void
+  onRemoveEvent: (timeEvent: TimeEvent) => void
+}
 
-export const createQueue = (timeEvents: Array<TimeEvent> = []): Queue => {
+export type QueueProps = {
+  timeEvents: Array<TimeEvent>
+} & QueueCallbacks
+
+const defaultOptions: QueueProps = {
+  timeEvents: [],
+  onInsertEvent: noop,
+  onRemoveEvent: noop,
+}
+
+export const createQueue = (props: Partial<QueueProps> = {}): Queue => {
   return {
-    timeEvents,
+    timeEvents: props.timeEvents || defaultOptions.timeEvents,
+    _callbacks: {
+      onInsertEvent: props.onInsertEvent || noop,
+      onRemoveEvent: props.onRemoveEvent || noop,
+    }
   }
 }
 
@@ -34,12 +49,16 @@ export const updateIndex = (timeEvent: TimeEvent, queue: Queue) => {
 // Inserts an existing event in the queue
 export const insertEvent = (timeEvent: TimeEvent, queue: Queue) => {
   queue.timeEvents.splice(indexByTime(timeEvent._earliestTime!, queue.timeEvents), 0, timeEvent)
+  queue._callbacks.onInsertEvent(timeEvent)
 }
 
 // Removes an event from the queue
-export const removeEvent = (event: TimeEvent, queue: Queue) => {
-  const index = queue.timeEvents.indexOf(event)
-  if (index !== -1) queue.timeEvents.splice(index, 1)
+export const removeEvent = (timeEvent: TimeEvent, queue: Queue) => {
+  const index = queue.timeEvents.indexOf(timeEvent)
+  if (index !== -1) {
+    queue.timeEvents.splice(index, 1)
+    queue._callbacks.onRemoveEvent(timeEvent)
+  }
 }
 
 // change the event time and update index

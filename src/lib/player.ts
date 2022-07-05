@@ -4,7 +4,7 @@ import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
 import { noop } from './utils/noop'
 
-const defaultOptions: PlayerOptions = {
+const defaultOptions: PlayerProps = {
   ticker: createNoopTicker(),
   context: {
     currentTime: 0,
@@ -23,7 +23,7 @@ export type PlayerContext = {
   currentTime: number
 }
 
-export type PlayerOptions = {
+export type PlayerProps = {
   ticker: Ticker
   context: PlayerContext
 } & PlayerCallbacks
@@ -48,19 +48,60 @@ export type Player = {
   _pauseTime: number | null
 }
 
-export const createPlayer = (options: Partial<PlayerOptions> = {}): Player => {
+export const playerWithLogger = (player: Player, log = console.log): Player => {
   return {
-    ticker: options.ticker || defaultOptions.ticker,
-    context: options.context || defaultOptions.context,
+    ...player,
     _callbacks: {
-      onStart: options.onStart || noop,
-      onResume: options.onResume || noop,
-      onPlay: options.onPlay || noop,
-      onStop: options.onStop || noop,
-      onPause: options.onPause || noop,
-      onEvent: options.onEvent || noop,
-      onEventExpire: options.onEventExpire || noop,
-      onSchedule: options.onSchedule || noop,
+      onStart: () => {
+        log('onStart')
+        player._callbacks.onStart()
+      },
+      onResume: () => {
+        log('onResume')
+        player._callbacks.onResume()
+      },
+      onPlay: () => {
+        log('onPlay')
+        player._callbacks.onPlay()
+      },
+      onStop: () => {
+        log('onStop')
+        player._callbacks.onStop()
+      },
+      onPause: () => {
+        log('onPause')
+        player._callbacks.onPause()
+      },
+      onEvent: (timeEvent) => {
+        log('onEvent', timeEvent)
+        player._callbacks.onEvent(timeEvent)
+      },
+      onEventExpire: (timeEvent) => {
+        log('onEventExpire', timeEvent)
+        player._callbacks.onEventExpire(timeEvent)
+      },
+      onSchedule: () => {
+        log('onSchedule')
+        player._callbacks.onSchedule()
+      }
+    }
+  }
+}
+
+export const createPlayer = (props: Partial<PlayerProps> = {}): Player => {
+
+  return {
+    ticker: props.ticker || defaultOptions.ticker,
+    context: props.context || defaultOptions.context,
+    _callbacks: {
+      onStart: props.onStart || noop,
+      onResume: props.onResume || noop,
+      onPlay: props.onPlay || noop,
+      onStop: props.onStop || noop,
+      onPause: props.onPause || noop,
+      onEvent: props.onEvent || noop,
+      onEventExpire: props.onEventExpire || noop,
+      onSchedule: props.onSchedule || noop,
     },
     _playbackQueue: createQueue(),
     _startTime: null,
@@ -111,7 +152,7 @@ export const start = (queue: Queue, player: Player) => {
   player._startTime = currentTime
   // The events get copied over, at least that is the current behavior
   // Alternatively we could use the provided queue itself,
-  // but it has some implications such as time stretching would mutate the original queue.
+  // but it has some implications such as playing mutates the original queue.
   queue.timeEvents.forEach((timeEvent) => schedule(timeEvent.time + currentTime, { ...timeEvent }, player))
   player._callbacks.onStart()
 }

@@ -6,7 +6,7 @@ import {
     createTimeEvent,
     insertEvent,
     getContextTime,
-    getScheduledEvents, createQueue, schedule
+    getScheduledEvents, createQueue, schedule, playerWithLogger
 } from '../../src'
 
 export const timeStretch = (context) => {
@@ -32,7 +32,7 @@ export const timeStretch = (context) => {
     play(queue, player)
 
     // the tempo will be doubled immediately for all events
-    stretch(0.5, getContextTime(player), getScheduledEvents(player), player)
+    // stretch(0.5, getContextTime(player), getScheduledEvents(player), player)
 
     // schedule an event in 5 seconds to change the tempo in half only for the first 2 events
     const changeTempoEvent = createTimeEvent(0, null, 1, (event) => {

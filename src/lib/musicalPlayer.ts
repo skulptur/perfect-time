@@ -1,7 +1,7 @@
-import { Player, PlayerOptions, createPlayer, getContextTime, timeStretch, repeat } from './player'
+import { Player, PlayerProps, createPlayer, getContextTime, timeStretch, repeat } from './player'
 import { secondsToBeats, beatsToSeconds } from 'audio-fns'
-import { EventCallback } from './timeEvent'
-import {addEvent, Queue} from "./queue";
+import { EventCallback, createTimeEvent } from './timeEvent'
+import { insertEvent, Queue} from "./queue";
 
 
 export type MusicalPlayerOptions = {
@@ -14,7 +14,7 @@ const defaultOptions: MusicalPlayerOptions = {
 
 export type MusicalPlayer = MusicalPlayerOptions & Player
 
-export const createMusicalPlayer = (options: Partial<MusicalPlayerOptions & PlayerOptions> = {}): MusicalPlayer => {
+export const createMusicalPlayer = (options: Partial<MusicalPlayerOptions & PlayerProps> = {}): MusicalPlayer => {
   return {
     ...createPlayer(options),
     tempo: options.tempo || defaultOptions.tempo,
@@ -33,7 +33,9 @@ export const setTempo = (tempo: number, musicalPlayer: MusicalPlayer) => {
 
 // Schedules `callback` to run before `time` given in beats.
 export const atBeat = (timeInBeats: number, callback: EventCallback, musicalPlayer: MusicalPlayer, queue: Queue) => {
-  return addEvent(beatsToSeconds(timeInBeats, musicalPlayer.tempo), null, 0, callback, queue)
+  const event = createTimeEvent(beatsToSeconds(timeInBeats, musicalPlayer.tempo), null, 0, callback)
+  insertEvent(event, queue)
+  return event
 }
 
 // Schedules `callback` to run immediately and repeat with `delay` seconds indefinitely (until the event is manually cancelled).

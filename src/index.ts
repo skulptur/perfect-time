@@ -15,10 +15,11 @@ export {
     schedule,
     repeat,
     getScheduledEvents,
+    playerWithLogger,
 } from './lib/player'
 export type {
     PlayerContext,
-    PlayerOptions,
+    PlayerProps,
     PlayerCallbacks, Player
 } from './lib/player'
 export {
@@ -43,6 +44,7 @@ export type {MusicalPlayer, MusicalPlayerOptions} from './lib/musicalPlayer'
 
 // pubSub
 export {createPlayerPubSub} from './lib/pubSub'
+export type {PlayerPubSub} from './lib/pubSub'
 
 // tickers
 export type {Ticker} from './types'

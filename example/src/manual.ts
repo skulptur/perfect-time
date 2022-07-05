@@ -15,6 +15,7 @@ export const manual = () => {
   const player = createPlayer({
     context,
     ticker,
+    onPlay: () => console.log('play')
   })
 
   const queue = createQueue()
