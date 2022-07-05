@@ -1,12 +1,11 @@
 import { TimeEvent, updateEarlyLateDates } from './timeEvent'
 import { indexByTime } from './utils/indexByTime'
-// import {noop} from "./utils/noop";
+import {noop} from "./utils/noop";
 
 export type Queue = {
   timeEvents: Array<TimeEvent>
-  // _callbacks: QueueCallbacks
+  _callbacks: QueueCallbacks
 }
-
 
 export type QueueCallbacks = {
   onInsertEvent: (timeEvent: TimeEvent) => void
@@ -15,26 +14,21 @@ export type QueueCallbacks = {
 
 export type QueueProps = {
   timeEvents: Array<TimeEvent>
-} & QueueCallbacks
+}  & QueueCallbacks
 
-// const defaultOptions: QueueProps = {
-//   timeEvents: [],
-//   onInsertEvent: noop,
-//   onRemoveEvent: noop,
-// }
+const defaultOptions: QueueProps = {
+  timeEvents: [],
+  onInsertEvent: noop,
+  onRemoveEvent: noop,
+}
 
-// export const createQueue = (props: Partial<QueueProps> = {}): Queue => {
-//   return {
-//     timeEvents: props.timeEvents || defaultOptions.timeEvents,
-//     _callbacks: {
-//       onInsertEvent: props.onInsertEvent || noop,
-//       onRemoveEvent: props.onRemoveEvent || noop,
-//     }
-//   }
-// }
-export const createQueue = (timeEvents: Array<TimeEvent> = []): Queue => {
+export const createQueue = (props: Partial<QueueProps> = {}): Queue => {
   return {
-    timeEvents,
+    timeEvents: props.timeEvents || defaultOptions.timeEvents,
+    _callbacks: {
+      onInsertEvent: props.onInsertEvent || defaultOptions.onInsertEvent,
+      onRemoveEvent: props.onRemoveEvent || defaultOptions.onRemoveEvent,
+    }
   }
 }
 
