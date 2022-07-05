@@ -49,12 +49,16 @@ export const updateIndex = (timeEvent: TimeEvent, queue: Queue) => {
 // Inserts an existing event in the queue
 export const insertEvent = (timeEvent: TimeEvent, queue: Queue) => {
   queue.timeEvents.splice(indexByTime(timeEvent._earliestTime!, queue.timeEvents), 0, timeEvent)
+  queue._callbacks.onInsertEvent(timeEvent)
 }
 
 // Removes an event from the queue
-export const removeEvent = (event: TimeEvent, queue: Queue) => {
-  const index = queue.timeEvents.indexOf(event)
-  if (index !== -1) queue.timeEvents.splice(index, 1)
+export const removeEvent = (timeEvent: TimeEvent, queue: Queue) => {
+  const index = queue.timeEvents.indexOf(timeEvent)
+  if (index !== -1) {
+    queue.timeEvents.splice(index, 1)
+    queue._callbacks.onRemoveEvent(timeEvent)
+  }
 }
 
 // change the event time and update index
