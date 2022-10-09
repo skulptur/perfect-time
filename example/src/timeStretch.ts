@@ -56,7 +56,14 @@ export const timeStretch = (context) => {
     const player = createPlayer({
         context,
         ticker,
-        onEvent: (timeEvent) => console.log(timeEvent.data)
+        onEvent: (timeEvent) => {
+            if(typeof timeEvent.data === 'function'){
+                timeEvent.data(timeEvent)
+            }else{
+                console.log(timeEvent.data)
+            }
+
+        }
     })
 
     const timeEvents = [

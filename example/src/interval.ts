@@ -5,13 +5,15 @@ export const interval = (context) => {
   // it might start dropping if too high
   const ticker = createSetIntervalTicker(100)
 
+
   const player = createPlayer({
     context,
     ticker,
+    onEvent: (timeEvent) => console.log('interval', timeEvent.count)
   })
 
   const queue = createQueue()
-  const event = createTimeEvent(1, 1, 10, (event) => console.log('interval', event.count))
+  const event = createTimeEvent(1, 1, 10, null)
   insertEvent(event, queue)
 
   play(queue, player)
