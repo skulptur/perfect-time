@@ -1,4 +1,4 @@
-import { createPlayer, createSetIntervalTicker, play, addEvent, createQueue } from '../../src'
+import { createPlayer,createTimeEvent, createSetIntervalTicker, play, insertEvent, createQueue } from '../../src'
 
 export const interval = (context) => {
   // tweak as fast or slow as you want
@@ -11,7 +11,8 @@ export const interval = (context) => {
   })
 
   const queue = createQueue()
-  addEvent(1, 1, 10, (event) => console.log('interval', event.count), queue)
+  const event = createTimeEvent(1, 1, 10, (event) => console.log('interval', event.count))
+  insertEvent(event, queue)
 
   play(queue, player)
 }

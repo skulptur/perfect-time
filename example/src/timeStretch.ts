@@ -56,12 +56,13 @@ export const timeStretch = (context) => {
     const player = createPlayer({
         context,
         ticker,
+        onEvent: (timeEvent) => console.log(timeEvent.data)
     })
 
     const timeEvents = [
-        createTimeEvent(1, 3, Infinity, () => console.log('event A')),
-        createTimeEvent(2, 3, Infinity, () => console.log('event B')),
-        createTimeEvent(3, 3, Infinity, () => console.log('event C'))
+        createTimeEvent(1, 3, Infinity, 'event A'),
+        createTimeEvent(2, 3, Infinity, 'event B'),
+        createTimeEvent(3, 3, Infinity, 'event C')
     ]
 
     const queue = createQueue({timeEvents})

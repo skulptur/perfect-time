@@ -15,7 +15,6 @@ export {
     schedule,
     repeat,
     getScheduledEvents,
-    playerWithLogger,
 } from './lib/player'
 export type {
     PlayerContext,

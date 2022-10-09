@@ -2,7 +2,7 @@ import {TimeEvent} from "../timeEvent";
 
 // Returns the index of the first event whose time is >= to `time`
 
-export const indexByTime = (time: number, events: Array<TimeEvent>) => {
+export const indexByTime = (time: number, events: Array<TimeEvent<any>>) => {
   // performs a binary search
   let low = 0,
     high = events.length,

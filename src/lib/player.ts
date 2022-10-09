@@ -4,7 +4,7 @@ import { Ticker } from '../types'
 import { createNoopTicker } from './tickers/noopTicker'
 import { noop } from './utils/noop'
 
-const defaultOptions: PlayerProps = {
+const defaultOptions: PlayerProps<null> = {
   ticker: createNoopTicker(),
   context: {
     currentTime: 0,
@@ -23,32 +23,32 @@ export type PlayerContext = {
   currentTime: number
 }
 
-export type PlayerProps = {
+export type PlayerProps<T> = {
   ticker: Ticker
   context: PlayerContext
-} & PlayerCallbacks
+} & PlayerCallbacks<T>
 
-export type PlayerCallbacks = {
+export type PlayerCallbacks<T> = {
   onStart: () => void
   onResume: () => void
   onPlay: () => void
   onStop: () => void
   onPause: () => void
-  onEvent: (timeEvent: TimeEvent) => void
-  onEventExpire: (timeEvent: TimeEvent) => void
+  onEvent: (timeEvent: TimeEvent<T>) => void
+  onEventExpire: (timeEvent: TimeEvent<T>) => void
   onSchedule: () => void
 }
 
-export type Player = {
+export type Player<T> = {
   context: PlayerContext
   ticker: Ticker
-  _callbacks: PlayerCallbacks
-  _playbackQueue: Queue
+  _callbacks: PlayerCallbacks<T>
+  _playbackQueue: Queue<T>
   _startTime: number | null
   _pauseTime: number | null
 }
 
-export const createPlayer = (props: Partial<PlayerProps> = {}): Player => {
+export const createPlayer = <T>(props: Partial<PlayerProps<T>> = {}): Player<T> => {
   return {
     ticker: props.ticker || defaultOptions.ticker,
     context: props.context || defaultOptions.context,
@@ -68,27 +68,27 @@ export const createPlayer = (props: Partial<PlayerProps> = {}): Player => {
   }
 }
 
-export const getContextTime = (player: Player) => {
+export const getContextTime = (player: Player<any>) => {
   return player.context.currentTime
 }
 
-export const getElapsedTime = (player: Player) => {
+export const getElapsedTime = (player: Player<any>) => {
   return player._startTime === null ? 0 : getContextTime(player) - player._startTime
 }
 
-export const isStopped = (player: Player) => {
+export const isStopped = (player: Player<any>) => {
   return player._startTime === null && player._pauseTime === null
 }
 
-export const isPaused = (player: Player) => {
+export const isPaused = (player: Player<any>) => {
   return player._pauseTime !== null
 }
 
-export const isPlaying = (player: Player) => {
+export const isPlaying = (player: Player<any>) => {
   return player._startTime !== null && player._pauseTime === null
 }
 
-export const resume = (player: Player) => {
+export const resume = (player: Player<any>) => {
   if (!isPaused(player)) return
 
   const pauseDuration = getContextTime(player) - player._pauseTime!
@@ -103,7 +103,7 @@ export const resume = (player: Player) => {
   player._callbacks.onResume()
 }
 
-export const start = (queue: Queue, player: Player) => {
+export const start = <T>(queue: Queue<T>, player: Player<T>) => {
   if (!isStopped(player)) return
 
   const currentTime = getContextTime(player)
@@ -119,7 +119,7 @@ export const start = (queue: Queue, player: Player) => {
   player._callbacks.onStart()
 }
 
-export const play = (queue: Queue, player: Player) => {
+export const play = <T>(queue: Queue<T>, player: Player<T>) => {
   if (isPlaying(player)) return
 
   resume(player)
@@ -128,7 +128,7 @@ export const play = (queue: Queue, player: Player) => {
   player.ticker.start(() => update(getContextTime(player), player))
 }
 
-export const stop = (player: Player) => {
+export const stop = (player: Player<any>) => {
   if (isStopped(player)) return
 
   player._startTime = null
@@ -138,7 +138,7 @@ export const stop = (player: Player) => {
   player._callbacks.onStop()
 }
 
-export const pause = (player: Player) => {
+export const pause = (player: Player<any>) => {
   if (isPaused(player)) return
 
   player._pauseTime = getContextTime(player)
@@ -148,7 +148,7 @@ export const pause = (player: Player) => {
 
 // Stretches `time` and `repeat` of all scheduled `events` by `ratio`, keeping
 // their relative distance to `timeReference`, equivalent to changing the tempo.
-export const timeStretch = (ratio: number, timeReference: number, timeEvents: Array<TimeEvent>, player: Player) => {
+export const timeStretch = <T>(ratio: number, timeReference: number, timeEvents: Array<TimeEvent<T>>, player: Player<T>) => {
   if (ratio === 1) return
 
   timeEvents.forEach((timeEvent) => {
@@ -167,7 +167,7 @@ export const timeStretch = (ratio: number, timeReference: number, timeEvents: Ar
 
 // This function is ran periodically
 // at each tick it executes events for which `currentTime` is included in their tolerance interval.
-const update = (currentTime: number, player: Player) => {
+const update = (currentTime: number, player: Player<any>) => {
   const queue = player._playbackQueue
   let timeEvent = queue.timeEvents.shift()
 
@@ -180,7 +180,7 @@ const update = (currentTime: number, player: Player) => {
   if (timeEvent) queue.timeEvents.unshift(timeEvent)
 }
 
-const execute = (timeEvent: TimeEvent, player: Player) => {
+const execute = <T>(timeEvent: TimeEvent<T>, player: Player<T>) => {
   removeEvent(timeEvent, player._playbackQueue)
 
   if (player.context.currentTime < timeEvent._latestTime!) {
@@ -203,7 +203,7 @@ const execute = (timeEvent: TimeEvent, player: Player) => {
 // Schedules the event to run before `time`.
 // If the time is within the event tolerance, we handle the event immediately.
 // If the event was already scheduled at a different time, it is rescheduled.
-export const schedule = (time: number, timeEvent: TimeEvent, player: Player) => {
+export const schedule = <T>(time: number, timeEvent: TimeEvent<T>, player: Player<T>) => {
   if (timeEvent._limit <= timeEvent.count) {
     removeEvent(timeEvent, player._playbackQueue)
     return false
@@ -221,7 +221,7 @@ export const schedule = (time: number, timeEvent: TimeEvent, player: Player) => 
 }
 
 // Sets the event to repeat every `time` time, for `limit` times
-export const repeat = (interval: number, timeEvent: TimeEvent, player: Player) => {
+export const repeat = <T>(interval: number, timeEvent: TimeEvent<T>, player: Player<T>) => {
   const safeRepeatTime = Math.max(Number.MIN_VALUE, interval)
 
   timeEvent.interval = safeRepeatTime
@@ -232,6 +232,6 @@ export const repeat = (interval: number, timeEvent: TimeEvent, player: Player) =
   return timeEvent
 }
 
-export const getScheduledEvents = (player: Player) => {
+export const getScheduledEvents = <T>(player: Player<T>) => {
   return player._playbackQueue.timeEvents
 }
