@@ -1,6 +1,6 @@
 import { TimeEvent, updateEarlyLateDates } from './timeEvent'
 import { indexByTime } from './utils/indexByTime'
-import {noop} from "./utils/noop";
+import { noop } from "./utils/noop";
 
 export type Queue = {
   timeEvents: Array<TimeEvent>

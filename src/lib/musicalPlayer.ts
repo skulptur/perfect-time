@@ -3,7 +3,6 @@ import { secondsToBeats, beatsToSeconds } from 'audio-fns'
 import { EventCallback, createTimeEvent } from './timeEvent'
 import { insertEvent, Queue} from "./queue";
 
-
 export type MusicalPlayerOptions = {
   tempo: number
 }

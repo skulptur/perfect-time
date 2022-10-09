@@ -48,48 +48,7 @@ export type Player = {
   _pauseTime: number | null
 }
 
-export const playerWithLogger = (player: Player, log = console.log): Player => {
-  return {
-    ...player,
-    _callbacks: {
-      onStart: () => {
-        log('onStart')
-        player._callbacks.onStart()
-      },
-      onResume: () => {
-        log('onResume')
-        player._callbacks.onResume()
-      },
-      onPlay: () => {
-        log('onPlay')
-        player._callbacks.onPlay()
-      },
-      onStop: () => {
-        log('onStop')
-        player._callbacks.onStop()
-      },
-      onPause: () => {
-        log('onPause')
-        player._callbacks.onPause()
-      },
-      onEvent: (timeEvent) => {
-        log('onEvent', timeEvent)
-        player._callbacks.onEvent(timeEvent)
-      },
-      onEventExpire: (timeEvent) => {
-        log('onEventExpire', timeEvent)
-        player._callbacks.onEventExpire(timeEvent)
-      },
-      onSchedule: () => {
-        log('onSchedule')
-        player._callbacks.onSchedule()
-      }
-    }
-  }
-}
-
 export const createPlayer = (props: Partial<PlayerProps> = {}): Player => {
-
   return {
     ticker: props.ticker || defaultOptions.ticker,
     context: props.context || defaultOptions.context,
