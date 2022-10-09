@@ -21,26 +21,24 @@ export const manual = () => {
   const player = createPlayer({
     context,
     ticker,
-    onStop: () => console.log(player.context.currentTime, 'stop'),
-    onPlay: () => console.log(player.context.currentTime, 'play'),
-    onEvent: (event) => console.log(player.context.currentTime, event.time, event.data)
+    onStop: () => console.log('stop'),
+    onPlay: () => console.log('play'),
+    onEvent: (event) => console.log(player.context.currentTime, event.data)
   })
 
-  const event = createTimeEvent(1, 1, 10, { id: 1 ,velocity: 0.8, note: "C4"})
+  const event = createTimeEvent<EventData>(1, 1, 10, { id: 1 ,velocity: 0.8, note: "C4"})
   const queue = createQueue({timeEvents: [event]})
 
   // insertEvent(event, queue)
 
   play(queue, player)
-  // notice we tick 20 but only 10 events log :)
+  // notice we tick 20 but only 10 events log because of the event limit
   times(20, next)
 
   stop(player)
 
   play(queue, player)
 
-
-  // TODO: not working
   // notice that it does the same thing again because we stopped and started
   times(20, next)
 }

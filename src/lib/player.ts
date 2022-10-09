@@ -113,7 +113,11 @@ export const start = <T>(queue: Queue<T>, player: Player<T>) => {
   // Alternatively we could use the provided queue itself,
   // but it has some implications such as playing mutates the original queue.
   queue.timeEvents.forEach((timeEvent) => {
+    // TODO: extract into function?
+    // resets the timeEvent so it can be played again as if just added
     timeEvent.time = timeEvent._originalTime
+    timeEvent.count = 0
+
     schedule(timeEvent.time + currentTime, timeEvent, player)
   })
   player._callbacks.onStart()
@@ -124,8 +128,8 @@ export const play = <T>(queue: Queue<T>, player: Player<T>) => {
 
   resume(player)
   start(queue, player)
-  player._callbacks.onPlay()
   player.ticker.start(() => update(getContextTime(player), player))
+  player._callbacks.onPlay()
 }
 
 export const stop = (player: Player<any>) => {
