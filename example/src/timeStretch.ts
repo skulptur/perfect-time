@@ -16,6 +16,7 @@ type Note = {
 } | ((event: TimeEvent<any>) => void)
 
 export const timeStretch = (context) => {
+
     const synthA = new Tone.FMSynth().toDestination();
     const synthB = new Tone.FMSynth().toDestination();
     const synthC = new Tone.FMSynth().toDestination();
