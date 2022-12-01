@@ -86,6 +86,7 @@ export const timeStretch = (context) => {
             stretch(2, event.time, timeEvents.slice(0, 2), player)
         })
 
+    // TODO: it's letting us schedule an event of different T because player is unknown. Maybe player should be never by default
     schedule(getContextTime(player) + 5, changeTempoEvent, player)
 
 }
