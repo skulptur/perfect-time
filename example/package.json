@@ -11,7 +11,8 @@
   "dependencies": {
     "audio-fns": "^0.3.2",
     "data-fns": "^0.1.7",
-    "react-app-polyfill": "^1.0.0"
+    "react-app-polyfill": "^1.0.0",
+    "tone": "^14.7.77"
   },
   "alias": {
     "react": "../node_modules/react",

@@ -13,6 +13,8 @@ let isRunning = false
 const run = () => {
   if (isRunning) return
   isRunning = true
+
+
   console.log('run')
   resumeContext(new AudioContext()).then((context) => {
     console.log('- timeStretch')
